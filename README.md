@@ -9,13 +9,13 @@ The Exchange API provides exchange rate information and allows users to subscrib
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/DenPedosenko/BTC_Exchange_Rate.git
+git clone https://github.com/GenesisEducationKyiv/main-project-DenPedosenko.git
 ```
 
 2. Navigate to the project directory:
 
 ```bash 
-cd BTC_Exchange_Rate
+cd GenesisEducationKyiv/main-project-DenPedosenko
 ```
   
 3. Build the Docker image:
