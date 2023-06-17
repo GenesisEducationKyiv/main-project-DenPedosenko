@@ -28,6 +28,7 @@ func saveEmailToStorage(email string) (int, error) {
 	}
 
 	defer file.Close()
+
 	return http.StatusOK, nil
 }
 

@@ -8,25 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type User interface {
-	GetEmail() string
-}
-
-type user struct {
-	email string
-}
-
-func (u *user) GetEmail() string {
-	return u.email
-}
-
-func NewUser(email string) User {
-	return &user{email: email}
-}
-
 func getRate(c *gin.Context) {
-	user := NewUser("test")
-	_ = user.GetEmail()
 	rate, err := getCurrentBTCToUAHRate()
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -55,6 +37,7 @@ func postEmail(c *gin.Context) {
 
 	newEmail := request.FormValue("email")
 	httpStatus, errSave := saveEmailToStorage(newEmail)
+
 	if errSave != nil {
 		writter.WriteHeader(httpStatus)
 		return
