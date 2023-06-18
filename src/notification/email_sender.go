@@ -1,4 +1,4 @@
-package main
+package notification
 
 import (
 	"bytes"
@@ -8,7 +8,14 @@ import (
 	"text/template"
 )
 
-func send(to []string) error {
+type EmailSender struct {
+}
+
+func NewEmailSender() NotificationService {
+	return &EmailSender{}
+}
+
+func (sender *EmailSender) Send(to []string, rate float64) error {
 	from := "test.sender.genesis.ses@gmail.com"
 	password := "uotikrysrztcgdiq" //nolint:gosec
 
@@ -17,27 +24,11 @@ func send(to []string) error {
 
 	auth := smtp.PlainAuth("", from, password, smtpHost)
 
-	t, errTemplate := template.New("message").Parse(getMessageTemplate())
-	if errTemplate != nil {
-		log.Fatal(errTemplate)
-		return errTemplate
+	body, errBody := getMessageBody(rate)
+	if errBody != nil {
+		log.Fatal(errBody)
+		return errBody
 	}
-
-	var body bytes.Buffer
-
-	mimeHeaders := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
-	body.Write([]byte(fmt.Sprintf("Subject: Current BTC to UAH exchange rate \n%s\n\n", mimeHeaders)))
-
-	rate, errRateExtr := getCurrentBTCToUAHRate()
-	if errRateExtr != nil {
-		log.Fatal(errRateExtr)
-	}
-
-	_ = t.Execute(&body, struct {
-		Rate string
-	}{
-		Rate: fmt.Sprintf("%f", rate),
-	})
 
 	errSendMail := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, body.Bytes())
 	if errSendMail != nil {
@@ -45,4 +36,25 @@ func send(to []string) error {
 	}
 
 	return nil
+}
+
+func getMessageBody(rate float64) (*bytes.Buffer, error) {
+	t, errTemplate := template.New("message").Parse(getMessageTemplate())
+	if errTemplate != nil {
+		log.Fatal(errTemplate)
+		return nil, errTemplate
+	}
+
+	var body bytes.Buffer
+
+	mimeHeaders := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
+	body.Write([]byte(fmt.Sprintf("Subject: Current BTC to UAH exchange rate \n%s\n\n", mimeHeaders)))
+
+	_ = t.Execute(&body, struct {
+		Rate string
+	}{
+		Rate: fmt.Sprintf("%f", rate),
+	})
+
+	return &body, nil
 }

@@ -1,12 +1,10 @@
-module test.genesis.com/exchange-web-service
+module ses.genesis.com/exchange-web-service
 
 go 1.20
 
 require github.com/gin-gonic/gin v1.9.0
 
-require (
-	github.com/google/go-cmp v0.5.9 // indirect
-)
+require github.com/google/go-cmp v0.5.9 // indirect
 
 require (
 	github.com/bytedance/sonic v1.8.10 // indirect

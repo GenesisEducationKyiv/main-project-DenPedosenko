@@ -1,4 +1,4 @@
-package main
+package service
 
 import (
 	"encoding/json"
@@ -12,7 +12,14 @@ type ExchangeRateResponse struct {
 	Rate float64 `json:"rate"`
 }
 
-func getCurrentBTCToUAHRate() (float64, error) {
+type ExternalExchangeAPIController struct {
+}
+
+func NewExternalExchangeAPIController() *ExternalExchangeAPIController {
+	return &ExternalExchangeAPIController{}
+}
+
+func (controller *ExternalExchangeAPIController) GetCurrentBTCToUAHRate() (float64, error) {
 	var response ExchangeRateResponse
 
 	client := resty.New()
