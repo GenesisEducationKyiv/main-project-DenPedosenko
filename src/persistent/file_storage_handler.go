@@ -3,15 +3,22 @@ package persistent
 import (
 	"bufio"
 	"errors"
-	"net/http"
 	"os"
 )
 
 type FileStorage struct {
-	fileProcessor IFileProcessor
+	fileProcessor FileProcessor
 }
 
-func NewFileStorage(fileProcessor IFileProcessor) PersistentStorage {
+type errorCode int
+
+const (
+	OK          errorCode = 200
+	Conflict    errorCode = 409
+	UnkownError errorCode = 500
+)
+
+func NewFileStorage(fileProcessor FileProcessor) PersistentStorage {
 	return &FileStorage{
 		fileProcessor: fileProcessor,
 	}
@@ -21,22 +28,22 @@ func (storage *FileStorage) SaveEmailToStorage(email string) (int, error) {
 	file, err := storage.fileProcessor.openFile(os.O_WRONLY)
 
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return int(UnkownError), err
 	}
 
 	if storage.IsEmailAlreadyExists(email) {
-		return http.StatusConflict, errors.New("email already exists")
+		return int(Conflict), errors.New("email already exists")
 	}
 
 	_, errWrite := file.WriteString(email + "\n")
 
 	if errWrite != nil {
-		return http.StatusInternalServerError, err
+		return int(UnkownError), err
 	}
 
 	defer file.Close()
 
-	return http.StatusOK, nil
+	return int(OK), nil
 }
 
 func (storage *FileStorage) IsEmailAlreadyExists(newEmail string) bool {

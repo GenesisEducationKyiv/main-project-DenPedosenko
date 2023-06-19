@@ -7,19 +7,19 @@ import (
 const defaultFilePermission = 0o644
 const defaultFilePath = "emails.txt"
 
-type IFileProcessor interface {
+type FileProcessor interface {
 	openFile(ac int) (*os.File, error)
 	createFile() error
 }
 
-type FileProcessor struct {
+type fileProcessor struct {
 }
 
-func NewFileProcessor() *FileProcessor {
-	return &FileProcessor{}
+func NewFileProcessor() *fileProcessor {
+	return &fileProcessor{}
 }
 
-func (fp *FileProcessor) openFile(ac int) (*os.File, error) {
+func (fp *fileProcessor) openFile(ac int) (*os.File, error) {
 	file, err := os.OpenFile(defaultFilePath, os.O_APPEND|ac, defaultFilePermission)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -37,7 +37,7 @@ func (fp *FileProcessor) openFile(ac int) (*os.File, error) {
 	return file, nil
 }
 
-func (fp *FileProcessor) createFile() error {
+func (fp *fileProcessor) createFile() error {
 	file, err := os.Create(defaultFilePath)
 	if err != nil {
 		return err
