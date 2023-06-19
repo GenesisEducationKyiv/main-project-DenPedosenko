@@ -2,25 +2,31 @@ package notification
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"net/smtp"
 	"text/template"
+
+	"ses.genesis.com/exchange-web-service/src/config"
 )
 
 type EmailSender struct {
+	ctx context.Context
 }
 
-func NewEmailSender() NotificationService {
-	return &EmailSender{}
+func NewEmailSender(ctx context.Context) NotificationService {
+	return &EmailSender{
+		ctx: ctx,
+	}
 }
 
 func (sender *EmailSender) Send(to []string, rate float64) error {
-	from := "test.sender.genesis.ses@gmail.com"
-	password := "uotikrysrztcgdiq" //nolint:gosec
-
-	smtpHost := "smtp.gmail.com"
-	smtpPort := "587"
+	conf := config.GetConfig(sender.ctx)
+	from := conf.EmailUser
+	password := conf.EmailPassword
+	smtpHost := conf.EmailHost
+	smtpPort := conf.EmailPort
 
 	auth := smtp.PlainAuth("", from, password, smtpHost)
 
@@ -50,11 +56,16 @@ func getMessageBody(rate float64) (*bytes.Buffer, error) {
 	mimeHeaders := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
 	body.Write([]byte(fmt.Sprintf("Subject: Current BTC to UAH exchange rate \n%s\n\n", mimeHeaders)))
 
-	_ = t.Execute(&body, struct {
+	err := t.Execute(&body, struct {
 		Rate string
 	}{
 		Rate: fmt.Sprintf("%f", rate),
 	})
+
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
 
 	return &body, nil
 }

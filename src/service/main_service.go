@@ -9,22 +9,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type MainService struct {
+type mainService struct {
 	externalService     ExternalService
 	persistentService   persistent.PersistentStorage
 	notificationService notification.NotificationService
 }
 
 func NewMainService(externalService ExternalService, persistentService persistent.PersistentStorage,
-	notificationService notification.NotificationService) *MainService {
-	return &MainService{
+	notificationService notification.NotificationService) *mainService {
+	return &mainService{
 		externalService:     externalService,
 		persistentService:   persistentService,
-		notificationService: notificationService,
-	}
+		notificationService: notificationService}
 }
 
-func (service *MainService) GetRate(c *gin.Context) {
+func (service *mainService) GetRate(c *gin.Context) {
 	rate, err := service.externalService.GetCurrentBTCToUAHRate()
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -34,7 +33,7 @@ func (service *MainService) GetRate(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, rate)
 }
 
-func (service *MainService) PostEmail(c *gin.Context) {
+func (service *mainService) PostEmail(c *gin.Context) {
 	request := c.Request
 	writter := c.Writer
 	headerContentType := request.Header.Get("Content-Type")
@@ -62,7 +61,7 @@ func (service *MainService) PostEmail(c *gin.Context) {
 	writter.WriteHeader(httpStatus)
 }
 
-func (service *MainService) GetEmails(c *gin.Context) {
+func (service *mainService) GetEmails(c *gin.Context) {
 	emails, err := service.persistentService.AllEmails()
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -72,18 +71,19 @@ func (service *MainService) GetEmails(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, emails)
 }
 
-func (service *MainService) SendEmails(c *gin.Context) {
-	emails, errRetrivingEmails := service.persistentService.AllEmails()
+func (service *mainService) SendEmails(c *gin.Context) {
+	emails, err := service.persistentService.AllEmails()
 	rate, _ := service.externalService.GetCurrentBTCToUAHRate()
-	errNotification := service.notificationService.Send(emails, rate)
 
-	if errRetrivingEmails != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": errRetrivingEmails.Error()})
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	if errNotification != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": errNotification.Error()})
+	err = service.notificationService.Send(emails, rate)
+
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
