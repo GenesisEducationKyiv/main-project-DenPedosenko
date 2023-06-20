@@ -9,7 +9,7 @@ import (
 
 const (
 	// ConfigPath is a path to config file
-	configPath = "src/config/application.yaml"
+	configPath = "src/resources/application.yaml"
 )
 
 func initialize() service.InternalService {
