@@ -13,9 +13,9 @@ type FileStorage struct {
 type errorCode int
 
 const (
-	OK          errorCode = 200
-	Conflict    errorCode = 409
-	UnkownError errorCode = 500
+	OK           errorCode = 200
+	Conflict     errorCode = 409
+	UnknownError errorCode = 500
 )
 
 func NewFileStorage(fileProcessor FileProcessor) PersistentStorage {
@@ -25,20 +25,20 @@ func NewFileStorage(fileProcessor FileProcessor) PersistentStorage {
 }
 
 func (storage *FileStorage) SaveEmailToStorage(email string) (int, error) {
-	file, err := storage.fileProcessor.openFile(os.O_WRONLY)
-
-	if err != nil {
-		return int(UnkownError), err
+	if storage.isEmailAlreadyExists(email) {
+		return int(Conflict), errors.New("email already exists")
 	}
 
-	if storage.IsEmailAlreadyExists(email) {
-		return int(Conflict), errors.New("email already exists")
+	file, err := storage.fileProcessor.OpenFile(os.O_WRONLY)
+
+	if err != nil {
+		return int(UnknownError), err
 	}
 
 	_, errWrite := file.WriteString(email + "\n")
 
 	if errWrite != nil {
-		return int(UnkownError), err
+		return int(UnknownError), err
 	}
 
 	defer file.Close()
@@ -46,8 +46,8 @@ func (storage *FileStorage) SaveEmailToStorage(email string) (int, error) {
 	return int(OK), nil
 }
 
-func (storage *FileStorage) IsEmailAlreadyExists(newEmail string) bool {
-	file, err := storage.fileProcessor.openFile(os.O_RDONLY)
+func (storage *FileStorage) isEmailAlreadyExists(newEmail string) bool {
+	file, err := storage.fileProcessor.OpenFile(os.O_RDONLY)
 	if err != nil {
 		return false
 	}
@@ -64,7 +64,7 @@ func (storage *FileStorage) IsEmailAlreadyExists(newEmail string) bool {
 }
 
 func (storage *FileStorage) AllEmails() ([]string, error) {
-	file, err := storage.fileProcessor.openFile(os.O_RDONLY)
+	file, err := storage.fileProcessor.OpenFile(os.O_RDONLY)
 	if err != nil {
 		return nil, err
 	}

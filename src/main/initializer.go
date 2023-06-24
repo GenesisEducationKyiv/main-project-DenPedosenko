@@ -1,18 +1,19 @@
 package main
 
 import (
-	"ses.genesis.com/exchange-web-service/src/config"
-	"ses.genesis.com/exchange-web-service/src/notification"
-	"ses.genesis.com/exchange-web-service/src/persistent"
-	"ses.genesis.com/exchange-web-service/src/service"
+	"ses.genesis.com/exchange-web-service/src/main/config"
+	notification2 "ses.genesis.com/exchange-web-service/src/main/notification"
+	persistent2 "ses.genesis.com/exchange-web-service/src/main/persistent"
+	service2 "ses.genesis.com/exchange-web-service/src/main/service"
 )
 
 const (
 	// ConfigPath is a path to config file
-	configPath = "src/resources/application.yaml"
+	configPath      = "src/main/resources/application.yaml"
+	fileStoragePath = "src/main/resources/emails.txt"
 )
 
-func initialize() service.InternalService {
+func initialize() service2.InternalService {
 	configLoader := config.NewConfigLoader(configPath)
 
 	ctx, err := configLoader.GetContext()
@@ -21,9 +22,9 @@ func initialize() service.InternalService {
 		panic(err)
 	}
 
-	notificationService := notification.NewEmailSender(ctx)
-	persistentService := persistent.NewFileStorage(persistent.NewFileProcessor())
-	externalService := service.NewExternalExchangeAPIController(ctx)
+	notificationService := notification2.NewEmailSender(ctx, notification2.NewSMTPProtocolService())
+	persistentService := persistent2.NewFileStorage(persistent2.NewFileProcessor(fileStoragePath))
+	externalService := service2.NewExternalExchangeAPIController(ctx)
 
-	return service.NewMainService(externalService, persistentService, notificationService)
+	return service2.NewMainService(externalService, persistentService, notificationService)
 }
