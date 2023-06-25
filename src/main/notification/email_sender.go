@@ -5,8 +5,9 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"ses.genesis.com/exchange-web-service/src/main/config"
 	"text/template"
+
+	"ses.genesis.com/exchange-web-service/src/main/config"
 )
 
 type EmailSender struct {

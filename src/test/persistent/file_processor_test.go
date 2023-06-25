@@ -2,8 +2,9 @@ package persistent_test
 
 import (
 	"os"
-	"ses.genesis.com/exchange-web-service/src/main/persistent"
 	"testing"
+
+	"ses.genesis.com/exchange-web-service/src/main/persistent"
 )
 
 var testFileProcessor = persistent.NewFileProcessor("test_file_storage.txt")

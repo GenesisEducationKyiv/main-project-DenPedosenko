@@ -2,9 +2,10 @@ package notification_test
 
 import (
 	"net/smtp"
+	"testing"
+
 	"ses.genesis.com/exchange-web-service/src/main/config"
 	"ses.genesis.com/exchange-web-service/src/main/notification"
-	"testing"
 )
 
 type MockSMTPProtocolService struct {

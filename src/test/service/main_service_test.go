@@ -10,55 +10,17 @@ import (
 	"ses.genesis.com/exchange-web-service/src/main/service"
 )
 
-func TestGetRate(t *testing.T) {
-	t.Run("shouldGetRate", func(t *testing.T) {
-		externalService := &MockExternalService{}
-		internalService := service.NewMainService(externalService, nil, nil)
-		ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
-		internalService.GetRate(ctx)
-		if ctx.Writer.Status() != http.StatusOK {
-			t.Error("Status code is not 200")
-		}
-	})
+func TestServiceError(t *testing.T) {
+	externalService := &MockExternalServiceFail{}
+	persistentService := &MockPersistentService{}
+	notificationService := &MockNotificationServiceFail{}
 
 	t.Run("shouldNotGetRate", func(t *testing.T) {
-		externalService := &MockExternalServiceFail{}
 		internalService := service.NewMainService(externalService, nil, nil)
 		ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
 		internalService.GetRate(ctx)
 		if ctx.Writer.Status() != http.StatusInternalServerError {
 			t.Errorf("Status code is not 500")
-		}
-	})
-}
-
-func TestPostEmail(t *testing.T) {
-	t.Run("shouldPostEmail", func(t *testing.T) {
-		persistentService := &MockPersistentService{}
-		internalService := service.NewMainService(nil, persistentService, nil)
-		ctx := getTestRequestContext()
-		internalService.PostEmail(ctx)
-		if ctx.Writer.Status() != http.StatusOK {
-			t.Errorf("Status code is not 200")
-		}
-
-		if persistentService.emails[0] != "test@gmail.com" {
-			t.Errorf("Email is not saved")
-		}
-	})
-
-	t.Run("shouldNotPostEmailWithConflict", func(t *testing.T) {
-		persistentService := &MockPersistentService{}
-		internalService := service.NewMainService(nil, persistentService, nil)
-		persistentService.emails = append(persistentService.emails, "test@gmail.com")
-		ctx := getTestRequestContext()
-		internalService.PostEmail(ctx)
-		if ctx.Writer.Status() != http.StatusConflict {
-			t.Errorf("Status code is not 409")
-		}
-
-		if persistentService.emails[0] != "test@gmail.com" {
-			t.Errorf("Email is not saved")
 		}
 	})
 
@@ -71,18 +33,6 @@ func TestPostEmail(t *testing.T) {
 			t.Errorf("Status code is not 500")
 		}
 	})
-}
-
-func TestGetEmails(t *testing.T) {
-	t.Run("shouldGetEmails", func(t *testing.T) {
-		persistentService := &MockPersistentService{}
-		internalService := service.NewMainService(nil, persistentService, nil)
-		ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
-		internalService.GetEmails(ctx)
-		if ctx.Writer.Status() != http.StatusOK {
-			t.Errorf("Status code is not 200")
-		}
-	})
 
 	t.Run("shouldNotGetEmails", func(t *testing.T) {
 		persistentService := &MockPersistentServiceFail{}
@@ -93,25 +43,8 @@ func TestGetEmails(t *testing.T) {
 			t.Errorf("Status code is not 500")
 		}
 	})
-}
-
-func TestSendEmails(t *testing.T) {
-	t.Run("shouldSendEmails", func(t *testing.T) {
-		externalService := &MockExternalService{}
-		persistentService := &MockPersistentService{}
-		notificationService := &MockNotificationService{}
-		internalService := service.NewMainService(externalService, persistentService, notificationService)
-		ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
-		internalService.SendEmails(ctx)
-		if ctx.Writer.Status() != http.StatusOK {
-			t.Errorf("Status code is not 200")
-		}
-	})
 
 	t.Run("shouldNotSendEmails", func(t *testing.T) {
-		externalService := &MockExternalServiceFail{}
-		persistentService := &MockPersistentService{}
-		notificationService := &MockNotificationServiceFail{}
 		internalService := service.NewMainService(externalService, persistentService, notificationService)
 		ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
 		internalService.SendEmails(ctx)
@@ -119,7 +52,62 @@ func TestSendEmails(t *testing.T) {
 			t.Errorf("Status code is not 500")
 		}
 	})
+}
 
+func TestServiceSuccess(t *testing.T) {
+	externalService := &MockExternalService{}
+	persistentService := &MockPersistentService{}
+	notificationService := &MockNotificationService{}
+	internalService := service.NewMainService(externalService, persistentService, notificationService)
+
+	t.Run("shouldGetRate", func(t *testing.T) {
+		ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
+		internalService.GetRate(ctx)
+		if ctx.Writer.Status() != http.StatusOK {
+			t.Error("Status code is not 200")
+		}
+	})
+
+	t.Run("shouldSendEmails", func(t *testing.T) {
+		ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
+		internalService.SendEmails(ctx)
+		if ctx.Writer.Status() != http.StatusOK {
+			t.Errorf("Status code is not 200")
+		}
+	})
+
+	t.Run("shouldGetEmails", func(t *testing.T) {
+		ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
+		internalService.GetEmails(ctx)
+		if ctx.Writer.Status() != http.StatusOK {
+			t.Errorf("Status code is not 200")
+		}
+	})
+
+	t.Run("shouldPostEmail", func(t *testing.T) {
+		ctx := getTestRequestContext()
+		internalService.PostEmail(ctx)
+		if ctx.Writer.Status() != http.StatusOK {
+			t.Errorf("Status code is not 200")
+		}
+
+		if persistentService.emails[0] != "test@gmail.com" {
+			t.Errorf("Email is not saved")
+		}
+	})
+
+	t.Run("shouldNotPostEmailWithConflict", func(t *testing.T) {
+		persistentService.emails = append(persistentService.emails, "test@gmail.com")
+		ctx := getTestRequestContext()
+		internalService.PostEmail(ctx)
+		if ctx.Writer.Status() != http.StatusConflict {
+			t.Errorf("Status code is not 409")
+		}
+
+		if persistentService.emails[0] != "test@gmail.com" {
+			t.Errorf("Email is not saved")
+		}
+	})
 }
 
 func getTestRequestContext() *gin.Context {

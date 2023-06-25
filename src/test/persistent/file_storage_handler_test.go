@@ -3,8 +3,9 @@ package persistent_test
 import (
 	"errors"
 	"os"
-	"ses.genesis.com/exchange-web-service/src/main/persistent"
 	"testing"
+
+	"ses.genesis.com/exchange-web-service/src/main/persistent"
 )
 
 type TestFileProcessor struct {

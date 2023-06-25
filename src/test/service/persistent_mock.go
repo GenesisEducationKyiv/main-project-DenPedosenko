@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+
 	"ses.genesis.com/exchange-web-service/src/main/persistent"
 )
 
