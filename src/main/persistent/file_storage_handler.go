@@ -25,7 +25,7 @@ func NewFileStorage(fileProcessor FileProcessor) PersistentStorage {
 }
 
 func (storage *FileStorage) SaveEmailToStorage(email string) (int, error) {
-	if storage.isEmailAlreadyExists(email) {
+	if storage.IsEmailAlreadyExists(email) {
 		return int(Conflict), errors.New("email already exists")
 	}
 
@@ -46,7 +46,7 @@ func (storage *FileStorage) SaveEmailToStorage(email string) (int, error) {
 	return int(OK), nil
 }
 
-func (storage *FileStorage) isEmailAlreadyExists(newEmail string) bool {
+func (storage *FileStorage) IsEmailAlreadyExists(newEmail string) bool {
 	file, err := storage.fileProcessor.OpenFile(os.O_RDONLY)
 	if err != nil {
 		return false
