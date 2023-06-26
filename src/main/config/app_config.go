@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-type config struct {
+type AppConfig struct {
 	APIKey        string `yaml:"key"`
 	APIURL        string `yaml:"url"`
 	EmailUser     string `yaml:"username"`
@@ -15,12 +15,12 @@ type config struct {
 
 type configKey struct{}
 
-func WithConfig(ctx context.Context, config *config) context.Context {
+func WithConfig(ctx context.Context, config *AppConfig) context.Context {
 	return context.WithValue(ctx, configKey{}, config)
 }
 
-func GetConfig(ctx context.Context) *config {
-	if config, ok := ctx.Value(configKey{}).(*config); ok {
+func GetConfigFromContext(ctx context.Context) *AppConfig {
+	if config, ok := ctx.Value(configKey{}).(*AppConfig); ok {
 		return config
 	}
 

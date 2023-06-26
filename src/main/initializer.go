@@ -5,6 +5,8 @@ import (
 	"ses.genesis.com/exchange-web-service/src/main/notification"
 	"ses.genesis.com/exchange-web-service/src/main/persistent"
 	"ses.genesis.com/exchange-web-service/src/main/service"
+	"github.com/go-resty/resty/v2"
+	"ses.genesis.com/exchange-web-service/src/service/errormapper"
 )
 
 const (
@@ -25,6 +27,7 @@ func initialize() service.InternalService {
 	notificationService := notification.NewEmailSender(ctx, notification.NewSMTPProtocolService())
 	persistentService := persistent.NewFileStorage(persistent.NewFileProcessor(fileStoragePath))
 	externalService := service.NewExternalExchangeAPIController(ctx)
+	storageToHTTPMapper := errormapper.NewStorageErrorToHTTPMapper()
 
-	return service.NewMainService(externalService, persistentService, notificationService)
+	return service.NewMainService(externalService, persistentService, notificationService, storageToHTTPMapper)
 }

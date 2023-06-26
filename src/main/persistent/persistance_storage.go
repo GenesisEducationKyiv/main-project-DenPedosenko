@@ -1,7 +1,7 @@
 package persistent
 
-type PersistentStorage interface {
+type Storage interface {
 	AllEmails() ([]string, error)
-	SaveEmailToStorage(email string) (int, error)
+	SaveEmailToStorage(email string) *StorageError
 	IsEmailAlreadyExists(newEmail string) bool
 }

@@ -1,5 +1,5 @@
 package service
 
 type ExternalService interface {
-	GetCurrentBTCToUAHRate() (float64, error)
+	CurrentBTCToUAHRate() (float64, error)
 }

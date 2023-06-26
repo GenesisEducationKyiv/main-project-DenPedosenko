@@ -16,13 +16,13 @@ func NewConfigLoader(filepath string) *configLoader {
 	return &configLoader{filepath: filepath}
 }
 
-func (loader *configLoader) loadConfig() (*config, error) {
+func (loader *configLoader) loadConfig() (*AppConfig, error) {
 	content, err := os.ReadFile(loader.filepath)
 	if err != nil {
 		return nil, err
 	}
 
-	var conf config
+	var conf AppConfig
 	err = yaml.Unmarshal(content, &conf)
 
 	if err != nil {
