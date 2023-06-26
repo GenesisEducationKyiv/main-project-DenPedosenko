@@ -20,17 +20,9 @@ func NewFileProcessor() *fileProcessor {
 }
 
 func (fp *fileProcessor) openFile(ac int) (*os.File, error) {
-	file, err := os.OpenFile(defaultFilePath, os.O_APPEND|ac, defaultFilePermission)
+	file, err := os.OpenFile(defaultFilePath, os.O_APPEND|os.O_CREATE|ac, defaultFilePermission)
+
 	if err != nil {
-		if os.IsNotExist(err) {
-			errFileCreation := fp.createFile()
-			if errFileCreation != nil {
-				return nil, errFileCreation
-			}
-
-			return file, nil
-		}
-
 		return nil, err
 	}
 

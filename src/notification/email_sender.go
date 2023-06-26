@@ -11,18 +11,27 @@ import (
 	"ses.genesis.com/exchange-web-service/src/config"
 )
 
+const mimeHeaders = "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
+
 type EmailSender struct {
-	ctx context.Context
+	ctx      context.Context
+	template *template.Template
 }
 
 func NewEmailSender(ctx context.Context) NotificationService {
+	t, errTemplate := template.New("message").Parse(getMessageTemplate())
+	if errTemplate != nil {
+		log.Fatal(errTemplate)
+	}
+
 	return &EmailSender{
-		ctx: ctx,
+		ctx:      ctx,
+		template: t,
 	}
 }
 
 func (sender *EmailSender) Send(to []string, rate float64) error {
-	conf := config.GetConfig(sender.ctx)
+	conf := config.GetConfigFromContext(sender.ctx)
 	from := conf.EmailUser
 	password := conf.EmailPassword
 	smtpHost := conf.EmailHost
@@ -30,7 +39,7 @@ func (sender *EmailSender) Send(to []string, rate float64) error {
 
 	auth := smtp.PlainAuth("", from, password, smtpHost)
 
-	body, errBody := getMessageBody(rate)
+	body, errBody := sender.getMessageBody(rate)
 	if errBody != nil {
 		log.Fatal(errBody)
 		return errBody
@@ -44,19 +53,12 @@ func (sender *EmailSender) Send(to []string, rate float64) error {
 	return nil
 }
 
-func getMessageBody(rate float64) (*bytes.Buffer, error) {
-	t, errTemplate := template.New("message").Parse(getMessageTemplate())
-	if errTemplate != nil {
-		log.Fatal(errTemplate)
-		return nil, errTemplate
-	}
-
+func (sender *EmailSender) getMessageBody(rate float64) (*bytes.Buffer, error) {
 	var body bytes.Buffer
 
-	mimeHeaders := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
 	body.Write([]byte(fmt.Sprintf("Subject: Current BTC to UAH exchange rate \n%s\n\n", mimeHeaders)))
 
-	err := t.Execute(&body, struct {
+	err := sender.template.Execute(&body, struct {
 		Rate string
 	}{
 		Rate: fmt.Sprintf("%f", rate),

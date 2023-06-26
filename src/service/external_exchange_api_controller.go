@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -15,23 +14,23 @@ type ExchangeRateResponse struct {
 }
 
 type ExternalExchangeAPIController struct {
-	ctx context.Context
+	config *config.AppConfig
+	client *resty.Client
 }
 
-func NewExternalExchangeAPIController(ctx context.Context) *ExternalExchangeAPIController {
+func NewExternalExchangeAPIController(conf *config.AppConfig, client *resty.Client) *ExternalExchangeAPIController {
 	return &ExternalExchangeAPIController{
-		ctx: ctx,
+		config: conf,
+		client: client,
 	}
 }
 
-func (controller *ExternalExchangeAPIController) GetCurrentBTCToUAHRate() (float64, error) {
+func (controller *ExternalExchangeAPIController) CurrentBTCToUAHRate() (float64, error) {
 	var response ExchangeRateResponse
 
-	conf := config.GetConfig(controller.ctx)
-	client := resty.New()
-	resp, err := client.R().
-		SetHeader("X-CoinAPI-Key", conf.APIKey).
-		Get(conf.APIURL)
+	resp, err := controller.client.R().
+		SetHeader("X-CoinAPI-Key", controller.config.APIKey).
+		Get(controller.config.APIURL)
 
 	if err != nil {
 		return 0, fmt.Errorf("failed to perform API request: %w", err)
