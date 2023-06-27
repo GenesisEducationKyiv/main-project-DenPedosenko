@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
-	"ses.genesis.com/exchange-web-service/src/main/service/errormapper"
 	"testing"
+
+	"ses.genesis.com/exchange-web-service/src/main/service/errormapper"
 
 	"github.com/gin-gonic/gin"
 	"ses.genesis.com/exchange-web-service/src/main/service"
