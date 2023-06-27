@@ -3,27 +3,22 @@ package service
 import (
 	"net/http"
 
-	"ses.genesis.com/exchange-web-service/src/service/errormapper"
-
-	"ses.genesis.com/exchange-web-service/src/notification"
-	"ses.genesis.com/exchange-web-service/src/persistent"
 	"ses.genesis.com/exchange-web-service/src/main/notification"
 	"ses.genesis.com/exchange-web-service/src/main/persistent"
+	"ses.genesis.com/exchange-web-service/src/main/service/errormapper"
 
 	"github.com/gin-gonic/gin"
 )
 
 type MainService struct {
 	externalService     ExternalService
-	persistentService   persistent.PersistentStorage
 	notificationService notification.NotifyService
 	persistentService   persistent.Storage
-	notificationService notification.NotificationService
 	storageErrorMapper  errormapper.StorageErrorMapper[persistent.StorageError, int]
 }
 
 func NewMainService(externalService ExternalService, persistentService persistent.Storage,
-	notificationService notification.NotificationService,
+	notificationService notification.NotifyService,
 	storageErrorMapper errormapper.StorageErrorMapper[persistent.StorageError, int]) *MainService {
 	return &MainService{
 		externalService:     externalService,
@@ -52,9 +47,9 @@ func (service *MainService) PostEmail(c *gin.Context) {
 		return
 	}
 
-	errParse := request.ParseForm()
+	err := request.ParseForm()
 
-	if errParse != nil {
+	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -62,8 +57,8 @@ func (service *MainService) PostEmail(c *gin.Context) {
 	newEmail := request.FormValue("email")
 	errSave := service.persistentService.SaveEmailToStorage(newEmail)
 
-	if errSave != nil {
-		writer.WriteHeader(service.storageErrorMapper.MapError(*errSave))
+	if errSave.Error != nil {
+		writer.WriteHeader(service.storageErrorMapper.MapError(errSave))
 		return
 	}
 

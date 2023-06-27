@@ -1,6 +1,7 @@
-package service
+package testservice
 
 import (
+	"errors"
 	"fmt"
 
 	"ses.genesis.com/exchange-web-service/src/main/persistent"
@@ -14,14 +15,20 @@ func (s *MockPersistentService) AllEmails() ([]string, error) {
 	return s.emails, nil
 }
 
-func (s *MockPersistentService) SaveEmailToStorage(email string) (int, error) {
+func (s *MockPersistentService) SaveEmailToStorage(email string) persistent.StorageError {
 	if s.IsEmailAlreadyExists(email) {
-		return int(persistent.Conflict), nil
+		return persistent.StorageError{
+			Code:  persistent.Conflict,
+			Error: errors.New("email already exists"),
+		}
 	}
 
 	s.emails = append(s.emails, email)
 
-	return int(persistent.OK), nil
+	return persistent.StorageError{
+		Code:  -1,
+		Error: nil,
+	}
 }
 
 func (s *MockPersistentService) IsEmailAlreadyExists(email string) bool {
@@ -41,8 +48,8 @@ func (s *MockPersistentServiceFail) AllEmails() ([]string, error) {
 	return nil, fmt.Errorf("failed to get emails")
 }
 
-func (s *MockPersistentServiceFail) SaveEmailToStorage(_ string) (int, error) {
-	return int(persistent.UnknownError), fmt.Errorf("failed to save email")
+func (s *MockPersistentServiceFail) SaveEmailToStorage(_ string) persistent.StorageError {
+	return persistent.StorageError{Error: fmt.Errorf("failed to save email"), Code: persistent.UnknownError}
 }
 
 func (s *MockPersistentServiceFail) IsEmailAlreadyExists(_ string) bool {
