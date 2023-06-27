@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"ses.genesis.com/exchange-web-service/src/main/config"
+	"ses.genesis.com/exchange-web-service/main/config"
 
 	"github.com/go-resty/resty/v2"
 )

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"ses.genesis.com/exchange-web-service/src/main/persistent"
+	"ses.genesis.com/exchange-web-service/main/persistent"
 )
 
 type MockPersistentService struct {

@@ -3,9 +3,9 @@ package service
 import (
 	"net/http"
 
-	"ses.genesis.com/exchange-web-service/src/main/notification"
-	"ses.genesis.com/exchange-web-service/src/main/persistent"
-	"ses.genesis.com/exchange-web-service/src/main/service/errormapper"
+	"ses.genesis.com/exchange-web-service/main/notification"
+	persistent2 "ses.genesis.com/exchange-web-service/main/persistent"
+	"ses.genesis.com/exchange-web-service/main/service/errormapper"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,13 +13,13 @@ import (
 type MainService struct {
 	externalService     ExternalService
 	notificationService notification.NotifyService
-	persistentService   persistent.Storage
-	storageErrorMapper  errormapper.StorageErrorMapper[persistent.StorageError, int]
+	persistentService   persistent2.Storage
+	storageErrorMapper  errormapper.StorageErrorMapper[persistent2.StorageError, int]
 }
 
-func NewMainService(externalService ExternalService, persistentService persistent.Storage,
+func NewMainService(externalService ExternalService, persistentService persistent2.Storage,
 	notificationService notification.NotifyService,
-	storageErrorMapper errormapper.StorageErrorMapper[persistent.StorageError, int]) *MainService {
+	storageErrorMapper errormapper.StorageErrorMapper[persistent2.StorageError, int]) *MainService {
 	return &MainService{
 		externalService:     externalService,
 		persistentService:   persistentService,

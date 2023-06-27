@@ -4,8 +4,8 @@ import (
 	"net/smtp"
 	"testing"
 
-	"ses.genesis.com/exchange-web-service/src/main/config"
-	"ses.genesis.com/exchange-web-service/src/main/notification"
+	"ses.genesis.com/exchange-web-service/main/config"
+	"ses.genesis.com/exchange-web-service/main/notification"
 )
 
 type MockSMTPProtocolService struct {
@@ -22,7 +22,7 @@ func (protocol *MockSMTPProtocolService) SendMessage(_ smtp.Auth, _ notification
 }
 
 func TestSend(t *testing.T) {
-	configLoader := config.NewConfigLoader("../application.yaml")
+	configLoader := config.NewConfigLoader("../../application.yaml")
 	ctx, _ := configLoader.GetContext()
 
 	t.Run("shouldSendEmail", func(t *testing.T) {

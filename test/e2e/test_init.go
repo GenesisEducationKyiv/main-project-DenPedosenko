@@ -1,18 +1,18 @@
-package main
+package e2e
 
 import (
 	"github.com/go-resty/resty/v2"
-	"ses.genesis.com/exchange-web-service/src/main/config"
-	"ses.genesis.com/exchange-web-service/src/main/notification"
-	"ses.genesis.com/exchange-web-service/src/main/persistent"
-	"ses.genesis.com/exchange-web-service/src/main/service"
-	"ses.genesis.com/exchange-web-service/src/main/service/errormapper"
+	"ses.genesis.com/exchange-web-service/main/config"
+	"ses.genesis.com/exchange-web-service/main/notification"
+	"ses.genesis.com/exchange-web-service/main/persistent"
+	"ses.genesis.com/exchange-web-service/main/service"
+	"ses.genesis.com/exchange-web-service/main/service/errormapper"
 )
 
 const (
 	// ConfigPath is a path to config file
-	configPath      = "src/main/resources/application.yaml"
-	fileStoragePath = "src/main/resources/emails.txt"
+	configPath      = "../application.yaml"
+	fileStoragePath = "emails.txt"
 )
 
 func initialize() service.InternalService {

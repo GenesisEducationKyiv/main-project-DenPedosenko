@@ -6,10 +6,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"ses.genesis.com/exchange-web-service/src/main/service/errormapper"
+	"ses.genesis.com/exchange-web-service/main/service"
+	"ses.genesis.com/exchange-web-service/main/service/errormapper"
 
 	"github.com/gin-gonic/gin"
-	"ses.genesis.com/exchange-web-service/src/main/service"
 )
 
 func TestServiceError(t *testing.T) {

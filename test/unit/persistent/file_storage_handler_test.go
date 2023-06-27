@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"ses.genesis.com/exchange-web-service/src/main/persistent"
+	"ses.genesis.com/exchange-web-service/main/persistent"
 )
 
 type TestFileProcessor struct {
