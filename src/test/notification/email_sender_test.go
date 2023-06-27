@@ -30,7 +30,7 @@ func TestSend(t *testing.T) {
 		sender := notification.NewEmailSender(ctx, protocol)
 		err := sender.Send([]string{"test@gmail.com"}, 1.0)
 		if err != nil {
-			t.Errorf("Error: %s", err)
+			t.Errorf("Err: %s", err)
 		}
 		if protocol.message == "" {
 			t.Errorf("Message is empty")

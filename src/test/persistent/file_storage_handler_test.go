@@ -24,7 +24,7 @@ func (tfp *TestFileProcessor) OpenFile(_ int) (*os.File, error) {
 }
 
 func TestFileStorage_AllEmails(t *testing.T) {
-	afterEah()
+	cleanUpTestData()
 	t.Run("should return email from file", func(t *testing.T) {
 		var fs = persistent.NewFileStorage(&TestFileProcessor{})
 		emails, err := fs.AllEmails()
@@ -46,16 +46,16 @@ func TestFileStorage_AllEmails(t *testing.T) {
 			t.Error("Expected error to be nil")
 		}
 
-		defer afterEah()
+		defer cleanUpTestData()
 	})
 }
 
 func TestFileStorage_SaveEmailToStorage(t *testing.T) {
-	afterEah()
+	cleanUpTestData()
 	t.Run("should return OK if email is saved", func(t *testing.T) {
 		var fs = persistent.NewFileStorage(&TestFileProcessor{})
 		err := fs.SaveEmailToStorage("new_test_email")
-		if err.Error != nil {
+		if err.Err != nil {
 			t.Error("Expected error to be nil")
 		}
 	})
@@ -63,7 +63,7 @@ func TestFileStorage_SaveEmailToStorage(t *testing.T) {
 	t.Run("should return error with code 0 if email already exists", func(t *testing.T) {
 		var fs = persistent.NewFileStorage(&TestFileProcessor{})
 		err := fs.SaveEmailToStorage("test@gmail.com")
-		if err.Error == nil {
+		if err.Err == nil {
 			t.Error("Expected error to be not nil")
 		}
 
@@ -76,20 +76,25 @@ func TestFileStorage_SaveEmailToStorage(t *testing.T) {
 		var fs = persistent.NewFileStorage(&FailTestFileProcessor{})
 		err := fs.SaveEmailToStorage("test@gmail.com")
 
-		if err.Error == nil {
+		if err.Err == nil {
 			t.Error("Expected error to be not nil")
 		}
 
 		if err.Code != 1 {
 			t.Error("Expected status to be 1")
 		}
-		defer afterEah()
+		defer cleanUpTestData()
 	})
 }
 
-func afterEah() {
+func cleanUpTestData() {
 	_ = os.Remove("test_file_storage.txt")
-	file, _ := os.OpenFile("test_file_storage.txt", os.O_APPEND|os.O_RDWR|os.O_CREATE, 0666)
+	file, err := os.OpenFile("test_file_storage.txt", os.O_APPEND|os.O_RDWR|os.O_CREATE, 0666)
+
+	if err != nil {
+		panic(err)
+	}
+
 	file.WriteString("test@gmail.com\n") //nolint:errcheck
 	file.Close()
 }

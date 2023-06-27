@@ -11,8 +11,8 @@ type FileStorage struct {
 }
 
 type StorageError struct {
-	Error error
-	Code  ErrorCode
+	Err  error
+	Code ErrorCode
 }
 
 type ErrorCode int
@@ -33,8 +33,8 @@ func (storage *FileStorage) SaveEmailToStorage(email string) StorageError {
 
 	if err != nil {
 		return StorageError{
-			Error: errors.New("can't open file"),
-			Code:  UnknownError,
+			Err:  errors.New("can't open file"),
+			Code: UnknownError,
 		}
 	}
 
@@ -57,8 +57,8 @@ func (storage *FileStorage) SaveEmailToStorage(email string) StorageError {
 	defer file.Close()
 
 	return StorageError{
-		Error: nil,
-		Code:  -1,
+		Err:  nil,
+		Code: -1,
 	}
 }
 

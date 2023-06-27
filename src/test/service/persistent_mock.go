@@ -18,16 +18,16 @@ func (s *MockPersistentService) AllEmails() ([]string, error) {
 func (s *MockPersistentService) SaveEmailToStorage(email string) persistent.StorageError {
 	if s.IsEmailAlreadyExists(email) {
 		return persistent.StorageError{
-			Code:  persistent.Conflict,
-			Error: errors.New("email already exists"),
+			Code: persistent.Conflict,
+			Err:  errors.New("email already exists"),
 		}
 	}
 
 	s.emails = append(s.emails, email)
 
 	return persistent.StorageError{
-		Code:  -1,
-		Error: nil,
+		Code: -1,
+		Err:  nil,
 	}
 }
 
@@ -49,7 +49,7 @@ func (s *MockPersistentServiceFail) AllEmails() ([]string, error) {
 }
 
 func (s *MockPersistentServiceFail) SaveEmailToStorage(_ string) persistent.StorageError {
-	return persistent.StorageError{Error: fmt.Errorf("failed to save email"), Code: persistent.UnknownError}
+	return persistent.StorageError{Err: fmt.Errorf("failed to save email"), Code: persistent.UnknownError}
 }
 
 func (s *MockPersistentServiceFail) IsEmailAlreadyExists(_ string) bool {

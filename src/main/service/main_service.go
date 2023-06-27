@@ -57,7 +57,7 @@ func (service *MainService) PostEmail(c *gin.Context) {
 	newEmail := request.FormValue("email")
 	errSave := service.persistentService.SaveEmailToStorage(newEmail)
 
-	if errSave.Error != nil {
+	if errSave.Err != nil {
 		writer.WriteHeader(service.storageErrorMapper.MapError(errSave))
 		return
 	}
