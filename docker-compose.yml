@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  exchangeapi:
+    image: exchangeapi
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    hostname: localhost
+    ports:
+      - "8080:8080"
