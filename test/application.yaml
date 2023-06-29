@@ -1,0 +1,6 @@
+ key: 1840BB94-23AA-4434-B89F-BD0D74FEFB32
+ url: https://rest.coinapi.io/v1/exchangerate/BTC/UAH
+ username: test.sender.genesis.ses@gmail.com
+ password: uotikrysrztcgdiq
+ host: smtp.gmail.com
+ port: 587

@@ -1,4 +1,4 @@
-name: golangci-lint
+name: Workflow for push event
 on:
   push:
 
@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   golangci:
-    name: lint
+    name: Run linters
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -21,3 +21,16 @@ jobs:
         with:
           version: v1.53
           only-new-issues: true
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+          cache: false
+      - name: Run unit & integration tests
+        run: go test ./test/unit/...
+      - name: Run E2E tests
+        run: go test ./test/e2e/...
