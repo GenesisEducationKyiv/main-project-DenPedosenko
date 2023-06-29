@@ -19,7 +19,7 @@ func (tfp *FailTestFileProcessor) OpenFile(_ int) (*os.File, error) {
 }
 
 func (tfp *TestFileProcessor) OpenFile(_ int) (*os.File, error) {
-	file, _ := os.OpenFile("test_file_storage.txt", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
+	file, _ := os.OpenFile(TestFilePath, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
 	return file, nil
 }
 
@@ -88,8 +88,8 @@ func TestFileStorage_SaveEmailToStorage(t *testing.T) {
 }
 
 func cleanUpTestData() {
-	_ = os.Remove("test_file_storage.txt")
-	file, err := os.OpenFile("test_file_storage.txt", os.O_APPEND|os.O_RDWR|os.O_CREATE, 0666)
+	_ = os.Remove(TestFilePath)
+	file, err := os.OpenFile(TestFilePath, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0666)
 
 	if err != nil {
 		panic(err)

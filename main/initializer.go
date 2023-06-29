@@ -10,7 +10,6 @@ import (
 )
 
 const (
-	// ConfigPath is a path to config file
 	configPath      = "main/resources/application.yaml"
 	fileStoragePath = "main/resources/emails.txt"
 )

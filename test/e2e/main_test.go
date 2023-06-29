@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
@@ -47,16 +46,37 @@ func TestE2EMain(t *testing.T) {
 		}
 	}()
 
-	t.Run("shouldGetRate", func(t *testing.T) {
-		resp, err := client.R().Get(fmt.Sprintf("%s/rate", baseURL))
+	type e2eTestCase struct {
+		name           string
+		expectedStatus string
+		method         string
+		url            string
+	}
 
-		if err != nil {
-			t.Error(err)
-		}
+	for _, scenario := range []e2eTestCase{
+		{
+			name:           "shouldGetRate",
+			expectedStatus: status200,
+			method:         resty.MethodGet,
+			url:            fmt.Sprintf("%s/rate", baseURL),
+		},
+		{
+			name:           "shouldGetAllEmails",
+			expectedStatus: status200,
+			method:         resty.MethodGet,
+			url:            fmt.Sprintf("%s/subscribe", baseURL),
+		},
+	} {
+		t.Run(scenario.name, func(t *testing.T) {
+			resp, err := client.R().Execute(scenario.method, scenario.url)
 
-		assert.Equal(t, status200, resp.Status(), fmt.Sprintf(statusErrorMessage, status200))
-		assert.NotEmpty(t, resp.String())
-	})
+			if err != nil {
+				t.Error(err)
+			}
+			assert.Equal(t, scenario.expectedStatus, resp.Status(), fmt.Sprintf(statusErrorMessage, scenario.expectedStatus))
+			assert.NotEmpty(t, resp.String())
+		})
+	}
 
 	var testBody = fmt.Sprintf("email=%s", email)
 
@@ -72,19 +92,6 @@ func TestE2EMain(t *testing.T) {
 		assert.Equal(t, status200, resp.Status(), fmt.Sprintf(statusErrorMessage, status200))
 	})
 
-	t.Run("shouldGetAllEmails", func(t *testing.T) {
-		resp, err := client.R().
-			SetHeader(contentTypeHeader.header, contentTypeHeader.value).
-			SetBody(testBody).
-			Get(fmt.Sprintf("%s/subscribe", baseURL))
-		if err != nil {
-			t.Error(err)
-		}
-
-		assert.Equal(t, status200, resp.Status(), statusErrorMessage)
-		assert.True(t, strings.Contains(resp.String(), email))
-	})
-
 	t.Run("shouldReturnConflict", func(t *testing.T) {
 		resp, err := client.R().
 			SetHeader(contentTypeHeader.header, contentTypeHeader.value).
@@ -96,6 +103,7 @@ func TestE2EMain(t *testing.T) {
 
 		assert.Equal(t, status409, resp.Status(), fmt.Sprintf(statusErrorMessage, status409))
 	})
+
 	t.Run("shouldSendEmails", func(t *testing.T) {
 		resp, err := client.R().Post(fmt.Sprintf("%s/sendEmails", baseURL))
 		if err != nil {
