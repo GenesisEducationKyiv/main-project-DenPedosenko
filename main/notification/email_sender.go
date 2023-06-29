@@ -5,20 +5,27 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/smtp"
 	"text/template"
 
-	"ses.genesis.com/exchange-web-service/src/config"
+	"ses.genesis.com/exchange-web-service/main/config"
 )
 
 const mimeHeaders = "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
 
 type EmailSender struct {
 	ctx      context.Context
+	protocol NotifyProtocolService
 	template *template.Template
 }
 
-func NewEmailSender(ctx context.Context) NotificationService {
+type AuthConfig struct {
+	from     string
+	password string
+	smtpHost string
+	smtpPort string
+}
+
+func NewEmailSender(ctx context.Context, protocol NotifyProtocolService) NotifyService {
 	t, errTemplate := template.New("message").Parse(getMessageTemplate())
 	if errTemplate != nil {
 		log.Fatal(errTemplate)
@@ -27,17 +34,21 @@ func NewEmailSender(ctx context.Context) NotificationService {
 	return &EmailSender{
 		ctx:      ctx,
 		template: t,
+		protocol: protocol,
 	}
 }
 
 func (sender *EmailSender) Send(to []string, rate float64) error {
 	conf := config.GetConfigFromContext(sender.ctx)
-	from := conf.EmailUser
-	password := conf.EmailPassword
-	smtpHost := conf.EmailHost
-	smtpPort := conf.EmailPort
 
-	auth := smtp.PlainAuth("", from, password, smtpHost)
+	var authConfig = AuthConfig{
+		from:     conf.EmailUser,
+		password: conf.EmailPassword,
+		smtpHost: conf.EmailHost,
+		smtpPort: conf.EmailPort,
+	}
+
+	auth := sender.protocol.Authenticate(authConfig)
 
 	body, errBody := sender.getMessageBody(rate)
 	if errBody != nil {
@@ -45,7 +56,7 @@ func (sender *EmailSender) Send(to []string, rate float64) error {
 		return errBody
 	}
 
-	errSendMail := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, body.Bytes())
+	errSendMail := sender.protocol.SendMessage(auth, authConfig, to, body.Bytes())
 	if errSendMail != nil {
 		return errSendMail
 	}

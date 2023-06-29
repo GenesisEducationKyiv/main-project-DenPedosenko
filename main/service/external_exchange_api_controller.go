@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"ses.genesis.com/exchange-web-service/main/config"
+
 	"github.com/go-resty/resty/v2"
-	"ses.genesis.com/exchange-web-service/src/config"
 )
 
 type ExchangeRateResponse struct {

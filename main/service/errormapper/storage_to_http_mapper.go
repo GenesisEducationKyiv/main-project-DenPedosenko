@@ -3,7 +3,7 @@ package errormapper
 import (
 	"net/http"
 
-	"ses.genesis.com/exchange-web-service/src/persistent"
+	"ses.genesis.com/exchange-web-service/main/persistent"
 )
 
 type StorageErrorToHTTPMapper struct {
