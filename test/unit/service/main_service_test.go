@@ -14,7 +14,7 @@ import (
 
 func TestServiceError(t *testing.T) {
 	externalService := &MockExternalServiceFail{}
-	persistentService := &MockPersistentService{}
+	persistentService := &MockPersistentRepository{}
 	notificationService := &MockNotificationServiceFail{}
 	mappper := errormapper.NewStorageErrorToHTTPMapper()
 
@@ -59,7 +59,7 @@ func TestServiceError(t *testing.T) {
 
 func TestServiceSuccess(t *testing.T) {
 	externalService := &MockExternalService{}
-	persistentService := &MockPersistentService{}
+	persistentService := &MockPersistentRepository{}
 	notificationService := &MockNotificationService{}
 	mapper := errormapper.NewStorageErrorToHTTPMapper()
 

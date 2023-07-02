@@ -6,6 +6,12 @@ import (
 	"os"
 )
 
+type StorageRepository interface {
+	AllEmails() ([]string, error)
+	Save(email string) StorageError
+	IsEmailAlreadyExists(newEmail string) bool
+}
+
 type FileStorage struct {
 	fileProcessor FileProcessor
 }
@@ -22,13 +28,13 @@ const (
 	UnknownError ErrorCode = 1
 )
 
-func NewFileStorage(fileProcessor FileProcessor) Storage {
+func NewFileStorage(fileProcessor FileProcessor) StorageRepository {
 	return &FileStorage{
 		fileProcessor: fileProcessor,
 	}
 }
 
-func (storage *FileStorage) SaveEmailToStorage(email string) StorageError {
+func (storage *FileStorage) Save(email string) StorageError {
 	file, err := storage.fileProcessor.OpenFile(os.O_WRONLY)
 
 	if err != nil {

@@ -3,32 +3,41 @@ package service
 import (
 	"net/http"
 
+	"ses.genesis.com/exchange-web-service/main/persistent"
+	"ses.genesis.com/exchange-web-service/main/service/external"
+
 	"ses.genesis.com/exchange-web-service/main/notification"
-	persistent2 "ses.genesis.com/exchange-web-service/main/persistent"
 	"ses.genesis.com/exchange-web-service/main/service/errormapper"
 
 	"github.com/gin-gonic/gin"
 )
 
-type MainService struct {
-	externalService     ExternalService
-	notificationService notification.NotifyService
-	persistentService   persistent2.Storage
-	storageErrorMapper  errormapper.StorageErrorMapper[persistent2.StorageError, int]
+type InternalService interface {
+	GetRate(*gin.Context)
+	PostEmail(*gin.Context)
+	GetEmails(*gin.Context)
+	SendEmails(*gin.Context)
 }
 
-func NewMainService(externalService ExternalService, persistentService persistent2.Storage,
+type MainService struct {
+	externalService     external.RateService
+	notificationService notification.NotifyService
+	storageRepository   persistent.StorageRepository
+	storageErrorMapper  errormapper.StorageErrorMapper[persistent.StorageError, int]
+}
+
+func NewMainService(externalService external.RateService, persistentService persistent.StorageRepository,
 	notificationService notification.NotifyService,
-	storageErrorMapper errormapper.StorageErrorMapper[persistent2.StorageError, int]) *MainService {
+	storageErrorMapper errormapper.StorageErrorMapper[persistent.StorageError, int]) *MainService {
 	return &MainService{
 		externalService:     externalService,
-		persistentService:   persistentService,
+		storageRepository:   persistentService,
 		notificationService: notificationService,
 		storageErrorMapper:  storageErrorMapper}
 }
 
 func (service *MainService) GetRate(c *gin.Context) {
-	rate, err := service.externalService.CurrentBTCToUAHRate()
+	rate, err := service.externalService.CurrentRate("BTC", "UAH")
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -55,7 +64,7 @@ func (service *MainService) PostEmail(c *gin.Context) {
 	}
 
 	newEmail := request.FormValue("email")
-	errSave := service.persistentService.SaveEmailToStorage(newEmail)
+	errSave := service.storageRepository.Save(newEmail)
 
 	if errSave.Err != nil {
 		writer.WriteHeader(service.storageErrorMapper.MapError(errSave))
@@ -66,7 +75,7 @@ func (service *MainService) PostEmail(c *gin.Context) {
 }
 
 func (service *MainService) GetEmails(c *gin.Context) {
-	emails, err := service.persistentService.AllEmails()
+	emails, err := service.storageRepository.AllEmails()
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -76,14 +85,14 @@ func (service *MainService) GetEmails(c *gin.Context) {
 }
 
 func (service *MainService) SendEmails(c *gin.Context) {
-	emails, err := service.persistentService.AllEmails()
+	emails, err := service.storageRepository.AllEmails()
 
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	rate, err := service.externalService.CurrentBTCToUAHRate()
+	rate, err := service.externalService.CurrentRate("BTC", "UAH")
 
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

@@ -1,12 +1,15 @@
 package e2e
 
 import (
+	"container/list"
+
 	"github.com/go-resty/resty/v2"
 	"ses.genesis.com/exchange-web-service/main/config"
 	"ses.genesis.com/exchange-web-service/main/notification"
 	"ses.genesis.com/exchange-web-service/main/persistent"
 	"ses.genesis.com/exchange-web-service/main/service"
 	"ses.genesis.com/exchange-web-service/main/service/errormapper"
+	"ses.genesis.com/exchange-web-service/main/service/external"
 )
 
 const (
@@ -26,7 +29,15 @@ func initialize() service.InternalService {
 
 	notificationService := notification.NewEmailSender(ctx, notification.NewSMTPProtocolService())
 	persistentService := persistent.NewFileStorage(persistent.NewFileProcessor(fileStoragePath))
-	externalService := service.NewExternalExchangeAPIController(config.GetConfigFromContext(ctx), resty.New())
+	apis := list.New()
+	apisFactory := external.NewAPIFactory(config.GetConfigFromContext(ctx), resty.New())
+
+	apis.PushFront(apisFactory.CoinGeckoAPIRepository())
+	apis.PushFront(apisFactory.CoinAPIRepository())
+	apis.PushFront(apisFactory.KuCoinAPIRepository())
+
+	externalService := external.NewExternalExchangeAPIController(config.GetConfigFromContext(ctx), resty.New(), apis)
+
 	storageToHTTPMapper := errormapper.NewStorageErrorToHTTPMapper()
 
 	return service.NewMainService(externalService, persistentService, notificationService, storageToHTTPMapper)

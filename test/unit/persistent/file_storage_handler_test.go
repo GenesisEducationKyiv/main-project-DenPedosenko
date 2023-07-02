@@ -54,7 +54,7 @@ func TestFileStorage_SaveEmailToStorage(t *testing.T) {
 	cleanUpTestData()
 	t.Run("should return OK if email is saved", func(t *testing.T) {
 		var fs = persistent.NewFileStorage(&TestFileProcessor{})
-		err := fs.SaveEmailToStorage("new_test_email")
+		err := fs.Save("new_test_email")
 		if err.Err != nil {
 			t.Error("Expected error to be nil")
 		}
@@ -62,7 +62,7 @@ func TestFileStorage_SaveEmailToStorage(t *testing.T) {
 
 	t.Run("should return error with code 0 if email already exists", func(t *testing.T) {
 		var fs = persistent.NewFileStorage(&TestFileProcessor{})
-		err := fs.SaveEmailToStorage("test@gmail.com")
+		err := fs.Save("test@gmail.com")
 		if err.Err == nil {
 			t.Error("Expected error to be not nil")
 		}
@@ -74,7 +74,7 @@ func TestFileStorage_SaveEmailToStorage(t *testing.T) {
 
 	t.Run("should return error with code 1 if something goes wrong", func(t *testing.T) {
 		var fs = persistent.NewFileStorage(&FailTestFileProcessor{})
-		err := fs.SaveEmailToStorage("test@gmail.com")
+		err := fs.Save("test@gmail.com")
 
 		if err.Err == nil {
 			t.Error("Expected error to be not nil")
