@@ -32,9 +32,9 @@ func initialize() service.InternalService {
 	apis := list.New()
 	apisFactory := external.NewAPIFactory(config.GetConfigFromContext(ctx), resty.New())
 
-	apis.PushFront(apisFactory.CoinGeckoAPIRepository())
-	apis.PushFront(apisFactory.CoinAPIRepository())
-	apis.PushFront(apisFactory.KuCoinAPIRepository())
+	apis.PushBack(apisFactory.CoinGeckoAPIRepository())
+	apis.PushBack(apisFactory.CoinAPIRepository())
+	apis.PushBack(apisFactory.KuCoinAPIRepository())
 
 	externalService := external.NewExternalExchangeAPIController(config.GetConfigFromContext(ctx), resty.New(), apis)
 
