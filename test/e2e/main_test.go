@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -30,21 +31,29 @@ const (
 func TestE2EMain(t *testing.T) {
 	client := resty.New()
 
-	go func() {
-		var s = initialize()
+	ctx, cancel := context.WithCancel(context.Background())
 
-		router := gin.Default()
-		router.GET("api/rate", s.GetRate)
-		router.GET("api/subscribe", s.GetEmails)
-		router.POST("api/subscribe", s.PostEmail)
-		router.POST("api/sendEmails", s.SendEmails)
+	go func(ctx context.Context) {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				var s = initialize()
+				router := gin.Default()
+				router.GET("api/rate", s.GetRate)
+				router.GET("api/subscribe", s.GetEmails)
+				router.POST("api/subscribe", s.PostEmail)
+				router.POST("api/sendEmails", s.SendEmails)
 
-		err := router.Run("localhost:8080")
+				err := router.Run("localhost:8080")
 
-		if err != nil {
-			log.Fatal(err)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
 		}
-	}()
+	}(ctx)
 
 	type e2eTestCase struct {
 		name           string
@@ -113,10 +122,11 @@ func TestE2EMain(t *testing.T) {
 		assert.Equal(t, status200, resp.Status(), fmt.Sprintf(statusErrorMessage, status200))
 	})
 
-	func() {
+	defer func() {
 		err := os.Remove("emails.txt")
 		if err != nil {
 			log.Fatal(err)
 		}
 	}()
+	cancel()
 }

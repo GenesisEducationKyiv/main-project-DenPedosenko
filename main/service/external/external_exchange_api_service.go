@@ -38,7 +38,12 @@ func getRate(val *list.Element, from, to string) (float64, error) {
 		return 0, errors.New("no external API available")
 	}
 
-	api := val.Value.(RateAPI)
+	api, ok := val.Value.(RateAPI)
+
+	if !ok {
+		logrus.Error("Can't get rateApi from chain")
+		return 0, errors.New("can't get rateApi from chain")
+	}
 
 	rate, err := api.GetRate(from, to)
 	if err != nil {

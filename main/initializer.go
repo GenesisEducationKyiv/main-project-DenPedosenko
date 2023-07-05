@@ -25,14 +25,15 @@ func initialize() service.InternalService {
 		panic(err)
 	}
 
+	conf := config.GetConfigFromContext(ctx)
 	notificationService := notification.NewEmailSender(ctx, notification.NewSMTPProtocolService())
 	persistentService := persistent.NewFileStorage(persistent.NewFileProcessor(fileStoragePath))
-	apisFactory := external.NewAPIFactory(config.GetConfigFromContext(ctx), resty.New())
+	apisFactory := external.NewAPIFactory(resty.New())
 
 	apis := list.New()
-	apis.PushFront(apisFactory.CoinGeckoAPIRepository())
-	apis.PushFront(apisFactory.CoinAPIRepository())
-	apis.PushFront(apisFactory.KuCoinAPIRepository())
+	apis.PushFront(apisFactory.CoinGeckoAPIRepository(conf.CoinGecko))
+	apis.PushFront(apisFactory.CoinAPIRepository(conf.CoinAPI))
+	apis.PushFront(apisFactory.KuCoinAPIRepository(conf.KuCoin))
 
 	externalService := external.NewExternalExchangeAPIService(config.GetConfigFromContext(ctx), resty.New(), apis)
 	storageToHTTPMapper := errormapper.NewStorageErrorToHTTPMapper()

@@ -42,7 +42,7 @@ func (repository CoinAPIRepository) GetRate(from, to string) (float64, error) {
 		return 0, fmt.Errorf("failed to perform API request: %w", err)
 	}
 
-	logrus.Infof("CoinAPI response: %s", resp.String())
+	logrus.Infof("CoinAPI Data: %s", resp.String())
 
 	if resp.StatusCode() != http.StatusOK {
 		return 0, fmt.Errorf("unexpected API response: %s", resp.Status())
@@ -50,7 +50,7 @@ func (repository CoinAPIRepository) GetRate(from, to string) (float64, error) {
 
 	err = json.Unmarshal(resp.Body(), &response)
 	if err != nil {
-		return 0, fmt.Errorf("failed to parse API response: %w", err)
+		return 0, fmt.Errorf("failed to parse API Data: %w", err)
 	}
 
 	return response.Rate, nil

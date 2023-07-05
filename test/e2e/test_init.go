@@ -30,11 +30,12 @@ func initialize() service.InternalService {
 	notificationService := notification.NewEmailSender(ctx, notification.NewSMTPProtocolService())
 	persistentService := persistent.NewFileStorage(persistent.NewFileProcessor(fileStoragePath))
 	apis := list.New()
-	apisFactory := external.NewAPIFactory(config.GetConfigFromContext(ctx), resty.New())
+	conf := config.GetConfigFromContext(ctx)
+	apisFactory := external.NewAPIFactory(resty.New())
 
-	apis.PushBack(apisFactory.CoinAPIRepository())
-	apis.PushBack(apisFactory.CoinGeckoAPIRepository())
-	apis.PushBack(apisFactory.KuCoinAPIRepository())
+	apis.PushBack(apisFactory.CoinAPIRepository(conf.CoinAPI))
+	apis.PushBack(apisFactory.CoinGeckoAPIRepository(conf.CoinGecko))
+	apis.PushBack(apisFactory.KuCoinAPIRepository(conf.KuCoin))
 
 	externalService := external.NewExternalExchangeAPIService(config.GetConfigFromContext(ctx), resty.New(), apis)
 

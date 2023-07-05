@@ -56,7 +56,7 @@ func TestGetRateFromGecko(t *testing.T) {
 				URL: scenario.server.URL,
 			}
 
-			repository := external.NewCoinGeckoRepository(conf, client)
+			repository := external.NewCoinGeckoProvider(conf, client)
 			rate, err := repository.GetRate("btc", "uah")
 
 			assert.Equal(t, scenario.expErr, err)

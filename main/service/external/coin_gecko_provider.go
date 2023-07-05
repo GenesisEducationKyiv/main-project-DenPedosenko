@@ -11,13 +11,13 @@ import (
 	"ses.genesis.com/exchange-web-service/main/config"
 )
 
-type CoinGeckoRepository struct {
+type CoinGeckoProvider struct {
 	config *config.ConfigAPI
 	client *resty.Client
 }
 
-func NewCoinGeckoRepository(conf *config.ConfigAPI, client *resty.Client) *CoinGeckoRepository {
-	return &CoinGeckoRepository{
+func NewCoinGeckoProvider(conf *config.ConfigAPI, client *resty.Client) *CoinGeckoProvider {
+	return &CoinGeckoProvider{
 		config: conf,
 		client: client,
 	}
@@ -29,25 +29,21 @@ var supportedRatesKeys = map[string]string{
 	"uah": "uah",
 }
 
-type coinGeckoResponse struct {
-	Bitcoin struct {
-		UAH int `json:"uah"`
-	} `json:"bitcoin"`
-}
+func (repository CoinGeckoProvider) GetRate(from, to string) (float64, error) {
+	var response map[string]map[string]float64
 
-func (repository CoinGeckoRepository) GetRate(from, to string) (float64, error) {
-	var response coinGeckoResponse
-
+	from = supportedRatesKeys[strings.ToLower(from)]
+	to = supportedRatesKeys[strings.ToLower(to)]
 	resp, err := repository.client.R().
-		SetQueryParam("ids", supportedRatesKeys[strings.ToLower(from)]).
-		SetQueryParam("vs_currencies", supportedRatesKeys[strings.ToLower(to)]).
+		SetQueryParam("ids", from).
+		SetQueryParam("vs_currencies", to).
 		Get(repository.config.URL)
 
 	if err != nil {
 		return 0, fmt.Errorf("failed to perform API request: %w", err)
 	}
 
-	logrus.Infof("CoinGecko API response: %s", resp.String())
+	logrus.Infof("CoinGecko API Data: %s", resp.String())
 
 	if resp.StatusCode() != http.StatusOK {
 		return 0, fmt.Errorf("unexpected API response: %s", resp.Status())
@@ -55,10 +51,13 @@ func (repository CoinGeckoRepository) GetRate(from, to string) (float64, error) 
 
 	err = json.Unmarshal(resp.Body(), &response)
 	if err != nil {
-		return 0, fmt.Errorf("failed to parse API response: %w", err)
+		panic(err)
+	}
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse API Data: %w", err)
 	}
 
-	price := float64(response.Bitcoin.UAH)
+	price := response[from][to]
 
 	return price, nil
 }

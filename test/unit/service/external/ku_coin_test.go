@@ -28,11 +28,7 @@ func TestGetRateFromKuCoinApi(t *testing.T) {
 			server: httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				response := external.KuCoinResponse{
 					Code: "200",
-					Data: struct {
-						BTC string `json:"BTC"`
-					}{
-						BTC: "500000",
-					},
+					Data: map[string]string{"btc": "500000"},
 				}
 				_ = json.NewEncoder(w).Encode(response)
 			})),
