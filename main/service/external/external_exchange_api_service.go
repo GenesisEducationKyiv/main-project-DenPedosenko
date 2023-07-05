@@ -14,21 +14,21 @@ type RateService interface {
 	CurrentRate(from string, to string) (float64, error)
 }
 
-type ExchangeAPIController struct {
+type Service struct {
 	config       *config.AppConfig
 	client       *resty.Client
 	externalAPIs *list.List
 }
 
-func NewExternalExchangeAPIController(conf *config.AppConfig, client *resty.Client, apis *list.List) *ExchangeAPIController {
-	return &ExchangeAPIController{
+func NewExternalExchangeAPIService(conf *config.AppConfig, client *resty.Client, apis *list.List) *Service {
+	return &Service{
 		config:       conf,
 		client:       client,
 		externalAPIs: apis,
 	}
 }
 
-func (controller *ExchangeAPIController) CurrentRate(from, to string) (float64, error) {
+func (controller *Service) CurrentRate(from, to string) (float64, error) {
 	return getRate(controller.externalAPIs.Front(), from, to)
 }
 

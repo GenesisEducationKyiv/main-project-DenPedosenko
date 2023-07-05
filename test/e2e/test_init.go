@@ -36,7 +36,7 @@ func initialize() service.InternalService {
 	apis.PushBack(apisFactory.CoinGeckoAPIRepository())
 	apis.PushBack(apisFactory.KuCoinAPIRepository())
 
-	externalService := external.NewExternalExchangeAPIController(config.GetConfigFromContext(ctx), resty.New(), apis)
+	externalService := external.NewExternalExchangeAPIService(config.GetConfigFromContext(ctx), resty.New(), apis)
 
 	storageToHTTPMapper := errormapper.NewStorageErrorToHTTPMapper()
 

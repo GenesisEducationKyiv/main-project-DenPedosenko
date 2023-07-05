@@ -16,7 +16,7 @@ type KuCoinAPIRepository struct {
 	client *resty.Client
 }
 
-type kuCoinResponse struct {
+type KuCoinResponse struct {
 	Code string `json:"code"`
 	Data struct {
 		BTC string `json:"BTC"`
@@ -31,7 +31,7 @@ func NewKuCoinRepository(conf *config.ConfigAPI, client *resty.Client) *KuCoinAP
 }
 
 func (repository KuCoinAPIRepository) GetRate(from, to string) (float64, error) {
-	var response kuCoinResponse
+	var response KuCoinResponse
 
 	resp, err := repository.client.R().
 		SetQueryParam("currencies", from).

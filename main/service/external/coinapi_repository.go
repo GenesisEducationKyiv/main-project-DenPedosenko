@@ -27,12 +27,12 @@ func NewCoinAPIRepository(conf *config.ConfigAPI, client *resty.Client) *CoinAPI
 	}
 }
 
-type coinAPIResponse struct {
+type CoinAPIResponse struct {
 	Rate float64 `json:"rate"`
 }
 
 func (repository CoinAPIRepository) GetRate(from, to string) (float64, error) {
-	var response coinAPIResponse
+	var response CoinAPIResponse
 
 	resp, err := repository.client.R().
 		SetHeader("X-CoinAPI-Key", repository.config.Key).
