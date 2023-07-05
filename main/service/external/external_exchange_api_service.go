@@ -14,6 +14,10 @@ type RateService interface {
 	CurrentRate(from string, to string) (float64, error)
 }
 
+type RateAPI interface {
+	GetRate(from, to string) (float64, error)
+}
+
 type Service struct {
 	config       *config.AppConfig
 	client       *resty.Client

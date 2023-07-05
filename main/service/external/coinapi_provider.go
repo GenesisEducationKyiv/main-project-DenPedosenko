@@ -11,10 +11,6 @@ import (
 	"ses.genesis.com/exchange-web-service/main/config"
 )
 
-type RateAPI interface {
-	GetRate(from, to string) (float64, error)
-}
-
 type CoinAPIRepository struct {
 	config *config.ConfigAPI
 	client *resty.Client
