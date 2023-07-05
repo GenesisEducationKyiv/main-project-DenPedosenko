@@ -53,6 +53,7 @@ func (repository CoinGeckoProvider) GetRate(from, to string) (float64, error) {
 	if err != nil {
 		panic(err)
 	}
+
 	if err != nil {
 		return 0, fmt.Errorf("failed to parse API Data: %w", err)
 	}

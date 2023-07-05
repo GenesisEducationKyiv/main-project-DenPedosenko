@@ -40,6 +40,7 @@ func TestE2EMain(t *testing.T) {
 				return
 			default:
 				var s = initialize()
+
 				router := gin.Default()
 				router.GET("api/rate", s.GetRate)
 				router.GET("api/subscribe", s.GetEmails)
