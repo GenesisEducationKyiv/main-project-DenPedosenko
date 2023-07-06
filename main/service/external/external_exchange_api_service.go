@@ -10,10 +10,6 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-type RateService interface {
-	CurrentRate(from string, to string) (float64, error)
-}
-
 type RateAPI interface {
 	GetRate(from, to string) (float64, error)
 }

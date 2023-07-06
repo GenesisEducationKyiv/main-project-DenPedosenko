@@ -1,14 +1,6 @@
 package service
 
 import (
-	"net/http"
-
-	"ses.genesis.com/exchange-web-service/main/persistent"
-	"ses.genesis.com/exchange-web-service/main/service/external"
-
-	"ses.genesis.com/exchange-web-service/main/notification"
-	"ses.genesis.com/exchange-web-service/main/service/errormapper"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,92 +11,45 @@ type InternalService interface {
 	SendEmails(*gin.Context)
 }
 
-type MainService struct {
-	externalService     external.RateService
-	notificationService notification.NotifyService
-	storageRepository   persistent.StorageRepository
-	storageErrorMapper  errormapper.StorageErrorMapper[persistent.StorageError, int]
+type Rate interface {
+	GetRate(c *gin.Context)
 }
 
-func NewMainService(externalService external.RateService, persistentService persistent.StorageRepository,
-	notificationService notification.NotifyService,
-	storageErrorMapper errormapper.StorageErrorMapper[persistent.StorageError, int]) *MainService {
-	return &MainService{
-		externalService:     externalService,
-		storageRepository:   persistentService,
-		notificationService: notificationService,
-		storageErrorMapper:  storageErrorMapper}
+type Email interface {
+	PostEmail(c *gin.Context)
+	GetEmails(c *gin.Context)
+}
+
+type Notification interface {
+	SendEmails(c *gin.Context)
+}
+
+type MainService struct {
+	rate         *RateController
+	email        *EmailController
+	notification *NotificationController
 }
 
 func (service *MainService) GetRate(c *gin.Context) {
-	rate, err := service.externalService.CurrentRate("BTC", "UAH")
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, rate)
+	service.rate.GetRate(c)
 }
 
 func (service *MainService) PostEmail(c *gin.Context) {
-	request := c.Request
-	writer := c.Writer
-	headerContentType := request.Header.Get("Content-Type")
-
-	if headerContentType != "application/x-www-form-urlencoded" {
-		writer.WriteHeader(http.StatusUnsupportedMediaType)
-		return
-	}
-
-	err := request.ParseForm()
-
-	if err != nil {
-		writer.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	newEmail := request.FormValue("email")
-	errSave := service.storageRepository.Save(newEmail)
-
-	if errSave.Err != nil {
-		writer.WriteHeader(service.storageErrorMapper.MapError(errSave))
-		return
-	}
-
-	writer.WriteHeader(http.StatusOK)
+	service.email.PostEmail(c)
 }
 
 func (service *MainService) GetEmails(c *gin.Context) {
-	emails, err := service.storageRepository.AllEmails()
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, emails)
+	service.email.GetEmails(c)
 }
 
 func (service *MainService) SendEmails(c *gin.Context) {
-	emails, err := service.storageRepository.AllEmails()
+	service.notification.SendEmails(c)
+}
 
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+func NewMainService(rate *RateController, email *EmailController, notification *NotificationController) *MainService {
+	return &MainService{
+		rate:         rate,
+		email:        email,
+		notification: notification,
 	}
-
-	rate, err := service.externalService.CurrentRate("BTC", "UAH")
-
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	err = service.notificationService.Send(emails, rate)
-
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.Writer.WriteHeader(http.StatusOK)
 }

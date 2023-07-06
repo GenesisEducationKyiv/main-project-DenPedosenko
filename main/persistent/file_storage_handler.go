@@ -6,12 +6,6 @@ import (
 	"os"
 )
 
-type StorageRepository interface {
-	AllEmails() ([]string, error)
-	Save(email string) StorageError
-	IsEmailAlreadyExists(newEmail string) bool
-}
-
 type FileStorage struct {
 	fileProcessor FileProcessor
 }
@@ -28,7 +22,7 @@ const (
 	UnknownError ErrorCode = 1
 )
 
-func NewFileStorage(fileProcessor FileProcessor) StorageRepository {
+func NewFileStorage(fileProcessor FileProcessor) *FileStorage {
 	return &FileStorage{
 		fileProcessor: fileProcessor,
 	}

@@ -16,10 +16,14 @@ func TestServiceError(t *testing.T) {
 	externalService := &MockExternalServiceFail{}
 	persistentService := &MockPersistentRepository{}
 	notificationService := &MockNotificationServiceFail{}
-	mappper := errormapper.NewStorageErrorToHTTPMapper()
+	mapper := errormapper.NewStorageErrorToHTTPMapper()
+
+	rateController := service.NewRateController(externalService)
+	emailController := service.NewEmailController(persistentService, mapper)
+	notificationController := service.NewNotificationController(externalService, notificationService, persistentService)
 
 	t.Run("shouldNotGetRate", func(t *testing.T) {
-		internalService := service.NewMainService(externalService, nil, nil, mappper)
+		internalService := service.NewMainService(rateController, emailController, notificationController)
 		ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
 		internalService.GetRate(ctx)
 		if ctx.Writer.Status() != http.StatusInternalServerError {
@@ -29,7 +33,9 @@ func TestServiceError(t *testing.T) {
 
 	t.Run("shouldNotPostEmail", func(t *testing.T) {
 		persistentService := &MockPersistentServiceFail{}
-		internalService := service.NewMainService(nil, persistentService, nil, mappper)
+		emailControllerFail := service.NewEmailController(persistentService, mapper)
+
+		internalService := service.NewMainService(rateController, emailControllerFail, notificationController)
 		ctx := getTestRequestContext()
 		internalService.PostEmail(ctx)
 		if ctx.Writer.Status() != http.StatusInternalServerError {
@@ -39,7 +45,8 @@ func TestServiceError(t *testing.T) {
 
 	t.Run("shouldNotGetEmails", func(t *testing.T) {
 		persistentService := &MockPersistentServiceFail{}
-		internalService := service.NewMainService(nil, persistentService, nil, mappper)
+		emailControllerFail := service.NewEmailController(persistentService, mapper)
+		internalService := service.NewMainService(rateController, emailControllerFail, notificationController)
 		ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
 		internalService.GetEmails(ctx)
 		if ctx.Writer.Status() != http.StatusInternalServerError {
@@ -48,7 +55,7 @@ func TestServiceError(t *testing.T) {
 	})
 
 	t.Run("shouldNotSendEmails", func(t *testing.T) {
-		internalService := service.NewMainService(externalService, persistentService, notificationService, mappper)
+		internalService := service.NewMainService(rateController, emailController, notificationController)
 		ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
 		internalService.SendEmails(ctx)
 		if ctx.Writer.Status() != http.StatusInternalServerError {
@@ -63,7 +70,11 @@ func TestServiceSuccess(t *testing.T) {
 	notificationService := &MockNotificationService{}
 	mapper := errormapper.NewStorageErrorToHTTPMapper()
 
-	internalService := service.NewMainService(externalService, persistentService, notificationService, mapper)
+	rateController := service.NewRateController(externalService)
+	emailController := service.NewEmailController(persistentService, mapper)
+	notificationController := service.NewNotificationController(externalService, notificationService, persistentService)
+
+	internalService := service.NewMainService(rateController, emailController, notificationController)
 
 	t.Run("shouldGetRate", func(t *testing.T) {
 		ctx, _ := gin.CreateTestContext(httptest.NewRecorder())

@@ -13,7 +13,6 @@ import (
 )
 
 const (
-	// ConfigPath is a path to config file
 	configPath      = "../application.yaml"
 	fileStoragePath = "emails.txt"
 )
@@ -41,5 +40,9 @@ func initialize() service.InternalService {
 
 	storageToHTTPMapper := errormapper.NewStorageErrorToHTTPMapper()
 
-	return service.NewMainService(externalService, persistentService, notificationService, storageToHTTPMapper)
+	rateController := service.NewRateController(externalService)
+	emailController := service.NewEmailController(persistentService, storageToHTTPMapper)
+	notificationController := service.NewNotificationController(externalService, notificationService, persistentService)
+
+	return service.NewMainService(rateController, emailController, notificationController)
 }
