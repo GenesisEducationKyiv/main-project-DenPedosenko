@@ -17,7 +17,7 @@ const (
 	fileStoragePath = "main/resources/emails.txt"
 )
 
-func initialize() service.InternalService {
+func initialize() *service.MainService {
 	configLoader := config.NewConfigLoader(configPath)
 
 	ctx, err := configLoader.GetContext()
