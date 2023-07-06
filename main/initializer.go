@@ -38,5 +38,9 @@ func initialize() service.InternalService {
 	externalService := external.NewExternalExchangeAPIService(config.GetConfigFromContext(ctx), resty.New(), apis)
 	storageToHTTPMapper := errormapper.NewStorageErrorToHTTPMapper()
 
-	return service.NewMainService(externalService, persistentService, notificationService, storageToHTTPMapper)
+	rateController := service.NewRateController(externalService)
+	emailController := service.NewEmailController(persistentService, storageToHTTPMapper)
+	notificationController := service.NewNotificationController(externalService, notificationService, persistentService)
+
+	return service.NewMainService(rateController, emailController, notificationController)
 }
