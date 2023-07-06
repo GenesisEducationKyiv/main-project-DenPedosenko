@@ -51,7 +51,7 @@ func (repository CoinGeckoProvider) GetRate(from, to string) (float64, error) {
 
 	err = json.Unmarshal(resp.Body(), &response)
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
 
 	if err != nil {
