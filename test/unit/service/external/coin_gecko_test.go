@@ -2,13 +2,14 @@ package external_test
 
 import (
 	"errors"
-	"github.com/go-resty/resty/v2"
 	"net/http"
 	"net/http/httptest"
+	"testing"
+
+	"github.com/go-resty/resty/v2"
 	"ses.genesis.com/exchange-web-service/main/config"
 	"ses.genesis.com/exchange-web-service/main/logger"
 	"ses.genesis.com/exchange-web-service/main/service/external"
-	"testing"
 )
 
 func TestGetRateFromGecko(t *testing.T) {
