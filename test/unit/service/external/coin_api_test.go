@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"ses.genesis.com/exchange-web-service/main/logger"
+
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/assert"
 
@@ -45,11 +47,12 @@ func TestGetRateFromCoinApi(t *testing.T) {
 			defer scenario.server.Close()
 
 			client := resty.New().SetBaseURL(scenario.server.URL)
+			client = logger.NewLogger().NewLogResponseDecorator(client)
 			conf := &config.ConfigAPI{
 				URL: scenario.server.URL,
 				Key: "test-key",
 			}
-			repository := external.NewCoinAPIRepository(conf, client)
+			repository := external.NewCoinAPIProvider(conf, client)
 
 			rate, err := repository.GetRate("btc", "uah")
 

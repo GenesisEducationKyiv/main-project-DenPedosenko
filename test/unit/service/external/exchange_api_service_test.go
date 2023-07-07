@@ -5,6 +5,8 @@ import (
 	"errors"
 	"testing"
 
+	"ses.genesis.com/exchange-web-service/main/logger"
+
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/assert"
 
@@ -97,7 +99,9 @@ func TestService_CurrentRate(t *testing.T) {
 		},
 	} {
 		t.Run(scenario.name, func(t *testing.T) {
-			service := external.NewExternalExchangeAPIService(&config.AppConfig{}, resty.New(), scenario.apis)
+			client := logger.NewLogger().NewLogResponseDecorator(resty.New())
+
+			service := external.NewExternalExchangeAPIService(&config.AppConfig{}, client, scenario.apis)
 			rate, err := service.CurrentRate("USD", "EUR")
 			assert.Equal(t, scenario.err, err)
 			assert.Equal(t, scenario.rate, rate)

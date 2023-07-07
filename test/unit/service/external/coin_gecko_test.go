@@ -2,26 +2,17 @@ package external_test
 
 import (
 	"errors"
+	"github.com/go-resty/resty/v2"
 	"net/http"
 	"net/http/httptest"
-	"testing"
-
-	"github.com/go-resty/resty/v2"
-	"github.com/stretchr/testify/assert"
-
 	"ses.genesis.com/exchange-web-service/main/config"
+	"ses.genesis.com/exchange-web-service/main/logger"
 	"ses.genesis.com/exchange-web-service/main/service/external"
+	"testing"
 )
 
 func TestGetRateFromGecko(t *testing.T) {
-	type CoinGeckoScenario struct {
-		name     string
-		server   *httptest.Server
-		expected float64
-		expErr   error
-	}
-
-	for _, scenario := range []CoinGeckoScenario{
+	for _, scenario := range []Scenario{
 		{
 			name: "success",
 			server: httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -48,19 +39,14 @@ func TestGetRateFromGecko(t *testing.T) {
 		},
 	} {
 		t.Run(scenario.name, func(t *testing.T) {
-			defer scenario.server.Close()
-
 			client := resty.New().SetBaseURL(scenario.server.URL)
+			client = logger.NewLogger().NewLogResponseDecorator(client)
 
 			conf := &config.ConfigAPI{
 				URL: scenario.server.URL,
 			}
-
 			repository := external.NewCoinGeckoProvider(conf, client)
-			rate, err := repository.GetRate("btc", "uah")
-
-			assert.Equal(t, scenario.expErr, err)
-			assert.Equal(t, scenario.expected, rate)
+			test(t, scenario, repository)
 		})
 	}
 }

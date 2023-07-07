@@ -7,17 +7,16 @@ import (
 	"strings"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/sirupsen/logrus"
 	"ses.genesis.com/exchange-web-service/main/config"
 )
 
-type CoinAPIRepository struct {
+type CoinAPIProvider struct {
 	config *config.ConfigAPI
 	client *resty.Client
 }
 
-func NewCoinAPIRepository(conf *config.ConfigAPI, client *resty.Client) *CoinAPIRepository {
-	return &CoinAPIRepository{
+func NewCoinAPIProvider(conf *config.ConfigAPI, client *resty.Client) *CoinAPIProvider {
+	return &CoinAPIProvider{
 		config: conf,
 		client: client,
 	}
@@ -27,7 +26,7 @@ type CoinAPIResponse struct {
 	Rate float64 `json:"rate"`
 }
 
-func (repository CoinAPIRepository) GetRate(from, to string) (float64, error) {
+func (repository CoinAPIProvider) GetRate(from, to string) (float64, error) {
 	var response CoinAPIResponse
 
 	resp, err := repository.client.R().
@@ -37,8 +36,6 @@ func (repository CoinAPIRepository) GetRate(from, to string) (float64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("failed to perform API request: %w", err)
 	}
-
-	logrus.Infof("CoinAPI Data: %s", resp.String())
 
 	if resp.StatusCode() != http.StatusOK {
 		return 0, fmt.Errorf("unexpected API response: %s", resp.Status())

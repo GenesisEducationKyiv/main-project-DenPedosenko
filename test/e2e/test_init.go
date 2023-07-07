@@ -3,6 +3,8 @@ package e2e
 import (
 	"container/list"
 
+	"ses.genesis.com/exchange-web-service/main/logger"
+
 	"github.com/go-resty/resty/v2"
 	"ses.genesis.com/exchange-web-service/main/config"
 	"ses.genesis.com/exchange-web-service/main/notification"
@@ -30,7 +32,7 @@ func initialize() *service.MainService {
 	persistentService := persistent.NewFileStorage(persistent.NewFileProcessor(fileStoragePath))
 	apis := list.New()
 	conf := config.GetConfigFromContext(ctx)
-	apisFactory := external.NewAPIFactory(resty.New())
+	apisFactory := external.NewAPIFactory(resty.New(), logger.NewLogger())
 
 	apis.PushBack(apisFactory.CoinAPIRepository(conf.CoinAPI))
 	apis.PushBack(apisFactory.CoinGeckoAPIRepository(conf.CoinGecko))

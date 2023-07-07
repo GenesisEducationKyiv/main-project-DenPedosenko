@@ -28,11 +28,11 @@ func NewExternalExchangeAPIService(conf *config.AppConfig, client *resty.Client,
 	}
 }
 
-func (controller *Service) CurrentRate(from, to string) (float64, error) {
-	return getRate(controller.externalAPIs.Front(), from, to)
+func (s *Service) CurrentRate(from, to string) (float64, error) {
+	return s.getRate(s.externalAPIs.Front(), from, to)
 }
 
-func getRate(val *list.Element, from, to string) (float64, error) {
+func (s *Service) getRate(val *list.Element, from, to string) (float64, error) {
 	if val == nil {
 		logrus.Error("No external API available")
 		return 0, errors.New("no external API available")
@@ -47,7 +47,7 @@ func getRate(val *list.Element, from, to string) (float64, error) {
 
 	rate, err := api.GetRate(from, to)
 	if err != nil {
-		return getRate(val.Next(), from, to)
+		return s.getRate(val.Next(), from, to)
 	}
 
 	return rate, nil

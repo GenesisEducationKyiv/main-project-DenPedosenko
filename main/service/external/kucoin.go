@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/sirupsen/logrus"
 	"ses.genesis.com/exchange-web-service/main/config"
 )
 
@@ -21,7 +20,7 @@ type KuCoinResponse struct {
 	Data map[string]string
 }
 
-func NewKuCoinRepository(conf *config.ConfigAPI, client *resty.Client) *KuCoinAPIProvider {
+func NewKuCoinProvider(conf *config.ConfigAPI, client *resty.Client) *KuCoinAPIProvider {
 	return &KuCoinAPIProvider{
 		config: conf,
 		client: client,
@@ -39,8 +38,6 @@ func (repository KuCoinAPIProvider) GetRate(from, to string) (float64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("failed to perform API request: %w", err)
 	}
-
-	logrus.Infof("KuCoin API Data: %s", resp.String())
 
 	if resp.StatusCode() != http.StatusOK {
 		return 0, fmt.Errorf("unexpected API response: %s", resp.Status())

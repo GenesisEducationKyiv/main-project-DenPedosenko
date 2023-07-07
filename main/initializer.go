@@ -3,6 +3,8 @@ package main
 import (
 	"container/list"
 
+	"ses.genesis.com/exchange-web-service/main/logger"
+
 	"github.com/go-resty/resty/v2"
 	"ses.genesis.com/exchange-web-service/main/config"
 	"ses.genesis.com/exchange-web-service/main/notification"
@@ -28,7 +30,7 @@ func initialize() *service.MainService {
 	conf := config.GetConfigFromContext(ctx)
 	notificationService := notification.NewEmailSender(ctx, notification.NewSMTPProtocolService())
 	persistentService := persistent.NewFileStorage(persistent.NewFileProcessor(fileStoragePath))
-	apisFactory := external.NewAPIFactory(resty.New())
+	apisFactory := external.NewAPIFactory(resty.New(), logger.NewLogger())
 
 	apis := list.New()
 	apis.PushFront(apisFactory.CoinGeckoAPIRepository(conf.CoinGecko))

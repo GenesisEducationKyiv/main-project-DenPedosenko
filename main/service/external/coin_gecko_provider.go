@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/sirupsen/logrus"
 	"ses.genesis.com/exchange-web-service/main/config"
 )
 
@@ -33,7 +32,9 @@ func (repository CoinGeckoProvider) GetRate(from, to string) (float64, error) {
 	var response map[string]map[string]float64
 
 	from = supportedRatesKeys[strings.ToLower(from)]
+
 	to = supportedRatesKeys[strings.ToLower(to)]
+
 	resp, err := repository.client.R().
 		SetQueryParam("ids", from).
 		SetQueryParam("vs_currencies", to).
@@ -42,8 +43,6 @@ func (repository CoinGeckoProvider) GetRate(from, to string) (float64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("failed to perform API request: %w", err)
 	}
-
-	logrus.Infof("CoinGecko API Data: %s", resp.String())
 
 	if resp.StatusCode() != http.StatusOK {
 		return 0, fmt.Errorf("unexpected API response: %s", resp.Status())

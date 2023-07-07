@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"ses.genesis.com/exchange-web-service/main/logger"
+
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/assert"
 
@@ -14,15 +16,15 @@ import (
 	"ses.genesis.com/exchange-web-service/main/service/external"
 )
 
-func TestGetRateFromKuCoinApi(t *testing.T) {
-	type CoinGeckoScenario struct {
-		name     string
-		server   *httptest.Server
-		expected float64
-		expErr   error
-	}
+type Scenario struct {
+	name     string
+	server   *httptest.Server
+	expected float64
+	expErr   error
+}
 
-	for _, scenario := range []CoinGeckoScenario{
+func TestGetRateFromKuCoinApi(t *testing.T) {
+	for _, scenario := range []Scenario{
 		{
 			name: "success",
 			server: httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -45,17 +47,23 @@ func TestGetRateFromKuCoinApi(t *testing.T) {
 		},
 	} {
 		t.Run(scenario.name, func(t *testing.T) {
-			defer scenario.server.Close()
-
 			client := resty.New().SetBaseURL(scenario.server.URL)
+			client = logger.NewLogger().NewLogResponseDecorator(client)
+
 			conf := &config.ConfigAPI{
 				URL: scenario.server.URL,
 			}
-			repository := external.NewKuCoinRepository(conf, client)
-			rate, err := repository.GetRate("btc", "uah")
-
-			assert.Equal(t, scenario.expErr, err)
-			assert.Equal(t, scenario.expected, rate)
+			repository := external.NewKuCoinProvider(conf, client)
+			test(t, scenario, repository)
 		})
 	}
+}
+
+func test(t *testing.T, scenario Scenario, repository external.RateAPI) {
+	defer scenario.server.Close()
+
+	rate, err := repository.GetRate("btc", "uah")
+
+	assert.Equal(t, scenario.expErr, err)
+	assert.Equal(t, scenario.expected, rate)
 }
