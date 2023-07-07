@@ -7,15 +7,15 @@ import (
 	"ses.genesis.com/exchange-web-service/main/persistent"
 )
 
-type MockPersistentService struct {
+type MockPersistentRepository struct {
 	emails []string
 }
 
-func (s *MockPersistentService) AllEmails() ([]string, error) {
+func (s *MockPersistentRepository) AllEmails() ([]string, error) {
 	return s.emails, nil
 }
 
-func (s *MockPersistentService) SaveEmailToStorage(email string) persistent.StorageError {
+func (s *MockPersistentRepository) Save(email string) persistent.StorageError {
 	if s.IsEmailAlreadyExists(email) {
 		return persistent.StorageError{
 			Code: persistent.Conflict,
@@ -31,7 +31,7 @@ func (s *MockPersistentService) SaveEmailToStorage(email string) persistent.Stor
 	}
 }
 
-func (s *MockPersistentService) IsEmailAlreadyExists(email string) bool {
+func (s *MockPersistentRepository) IsEmailAlreadyExists(email string) bool {
 	for _, e := range s.emails {
 		if e == email {
 			return true
@@ -48,7 +48,7 @@ func (s *MockPersistentServiceFail) AllEmails() ([]string, error) {
 	return nil, fmt.Errorf("failed to get emails")
 }
 
-func (s *MockPersistentServiceFail) SaveEmailToStorage(_ string) persistent.StorageError {
+func (s *MockPersistentServiceFail) Save(_ string) persistent.StorageError {
 	return persistent.StorageError{Err: fmt.Errorf("failed to save email"), Code: persistent.UnknownError}
 }
 

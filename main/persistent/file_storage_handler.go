@@ -22,13 +22,13 @@ const (
 	UnknownError ErrorCode = 1
 )
 
-func NewFileStorage(fileProcessor FileProcessor) Storage {
+func NewFileStorage(fileProcessor FileProcessor) *FileStorage {
 	return &FileStorage{
 		fileProcessor: fileProcessor,
 	}
 }
 
-func (storage *FileStorage) SaveEmailToStorage(email string) StorageError {
+func (storage *FileStorage) Save(email string) StorageError {
 	file, err := storage.fileProcessor.OpenFile(os.O_WRONLY)
 
 	if err != nil {

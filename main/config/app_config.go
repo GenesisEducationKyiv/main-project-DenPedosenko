@@ -5,12 +5,18 @@ import (
 )
 
 type AppConfig struct {
-	APIKey        string `yaml:"key"`
-	APIURL        string `yaml:"url"`
-	EmailUser     string `yaml:"username"`
-	EmailPassword string `yaml:"password"`
-	EmailHost     string `yaml:"host"`
-	EmailPort     string `yaml:"port"`
+	EmailUser     string    `yaml:"username"`
+	EmailPassword string    `yaml:"password"`
+	EmailHost     string    `yaml:"host"`
+	EmailPort     string    `yaml:"port"`
+	CoinAPI       ConfigAPI `yaml:"coin_api"`
+	CoinGecko     ConfigAPI `yaml:"coin_gecko"`
+	KuCoin        ConfigAPI `yaml:"ku_coin"`
+}
+
+type ConfigAPI struct {
+	Key string `yaml:"key"`
+	URL string `yaml:"url"`
 }
 
 type configKey struct{}

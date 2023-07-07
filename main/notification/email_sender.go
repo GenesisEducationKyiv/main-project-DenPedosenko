@@ -25,7 +25,7 @@ type AuthConfig struct {
 	smtpPort string
 }
 
-func NewEmailSender(ctx context.Context, protocol NotifyProtocolService) NotifyService {
+func NewEmailSender(ctx context.Context, protocol NotifyProtocolService) *EmailSender {
 	t, errTemplate := template.New("message").Parse(getMessageTemplate())
 	if errTemplate != nil {
 		log.Fatal(errTemplate)
