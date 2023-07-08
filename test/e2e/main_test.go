@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/assert"
-
-	"testing"
 )
 
 type header struct {
@@ -129,5 +128,6 @@ func TestE2EMain(t *testing.T) {
 			log.Fatal(err)
 		}
 	}()
+
 	cancel()
 }
