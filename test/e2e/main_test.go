@@ -3,13 +3,11 @@ package e2e
 import (
 	"context"
 	"fmt"
-	"log"
-	"os"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/assert"
-
+	"log"
+	"os"
 	"testing"
 )
 
@@ -52,13 +50,6 @@ func TestE2EMain(t *testing.T) {
 				if err != nil {
 					log.Fatal(err)
 				}
-
-				func() {
-					err := os.Remove("emails.txt")
-					if err != nil {
-						log.Fatal(err)
-					}
-				}()
 			}
 		}
 	}(ctx)
@@ -129,5 +120,13 @@ func TestE2EMain(t *testing.T) {
 
 		assert.Equal(t, status200, resp.Status(), fmt.Sprintf(statusErrorMessage, status200))
 	})
+
+	defer func() {
+		err := os.Remove("emails.txt")
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
 	cancel()
 }
