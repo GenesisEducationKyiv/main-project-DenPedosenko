@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"container/list"
+
 	"ses.genesis.com/exchange-web-service/main/service"
 
 	"ses.genesis.com/exchange-web-service/main/application/exchange"
