@@ -55,4 +55,4 @@ jobs:
           go-version: '1.20'
           cache: false
       - name: Run architecture tests
-        run: go test ./tests/architecture
+        run: go test ./test/architecture
