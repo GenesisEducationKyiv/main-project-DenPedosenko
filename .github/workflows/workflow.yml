@@ -43,7 +43,7 @@ jobs:
           go-version: '1.20'
           cache: false
       - name: Run e2e tests
-        run: go test ./tests/e2e
+        run: go test ./test/e2e
   architecture-test:
     name: Architecture Test
     runs-on: ubuntu-latest
