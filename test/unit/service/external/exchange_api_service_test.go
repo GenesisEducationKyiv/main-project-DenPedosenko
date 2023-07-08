@@ -5,13 +5,12 @@ import (
 	"errors"
 	"testing"
 
-	"ses.genesis.com/exchange-web-service/main/logger"
+	"ses.genesis.com/exchange-web-service/main/application/exchange"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/assert"
-
-	"ses.genesis.com/exchange-web-service/main/config"
-	"ses.genesis.com/exchange-web-service/main/service/external"
+	"ses.genesis.com/exchange-web-service/main/domain/config"
+	"ses.genesis.com/exchange-web-service/main/domain/logger"
 )
 
 type stub struct {
@@ -89,7 +88,7 @@ func TestService_CurrentRate(t *testing.T) {
 		{
 			name:          "fail",
 			rate:          0.0,
-			err:           errors.New("no external API available"),
+			err:           errors.New("no exchange API available"),
 			expectedCalls: []int{1, 1, 1},
 			apis: createAPIList(
 				apiExpects{rate: 0.5, err: errors.New("error")},
@@ -101,7 +100,7 @@ func TestService_CurrentRate(t *testing.T) {
 		t.Run(scenario.name, func(t *testing.T) {
 			client := logger.NewLogger().NewLogResponseDecorator(resty.New())
 
-			service := external.NewExternalExchangeAPIService(&config.AppConfig{}, client, scenario.apis)
+			service := exchange.NewExternalExchangeAPIService(&config.AppConfig{}, client, scenario.apis)
 			rate, err := service.CurrentRate("USD", "EUR")
 			assert.Equal(t, scenario.err, err)
 			assert.Equal(t, scenario.rate, rate)

@@ -1,6 +1,8 @@
 package notification
 
-import "net/smtp"
+import (
+	"net/smtp"
+)
 
 type SMTPProtocolService struct {
 }

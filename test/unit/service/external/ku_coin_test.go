@@ -7,13 +7,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"ses.genesis.com/exchange-web-service/main/logger"
+	"ses.genesis.com/exchange-web-service/main/application/exchange"
+	"ses.genesis.com/exchange-web-service/main/application/exchange/provider"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/assert"
-
-	"ses.genesis.com/exchange-web-service/main/config"
-	"ses.genesis.com/exchange-web-service/main/service/external"
+	"ses.genesis.com/exchange-web-service/main/domain/config"
+	"ses.genesis.com/exchange-web-service/main/domain/logger"
 )
 
 type Scenario struct {
@@ -28,7 +28,7 @@ func TestGetRateFromKuCoinApi(t *testing.T) {
 		{
 			name: "success",
 			server: httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				response := external.KuCoinResponse{
+				response := provider.KuCoinResponse{
 					Code: "200",
 					Data: map[string]string{"btc": "500000"},
 				}
@@ -53,13 +53,13 @@ func TestGetRateFromKuCoinApi(t *testing.T) {
 			conf := &config.ConfigAPI{
 				URL: scenario.server.URL,
 			}
-			repository := external.NewKuCoinProvider(conf, client)
+			repository := provider.NewKuCoinProvider(conf, client)
 			test(t, scenario, repository)
 		})
 	}
 }
 
-func test(t *testing.T, scenario Scenario, repository external.RateAPI) {
+func test(t *testing.T, scenario Scenario, repository exchange.RateAPI) {
 	defer scenario.server.Close()
 
 	rate, err := repository.GetRate("btc", "uah")

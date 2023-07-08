@@ -6,8 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"ses.genesis.com/exchange-web-service/main/presentation/handler"
+	"ses.genesis.com/exchange-web-service/main/presentation/handler/errormapper"
 	"ses.genesis.com/exchange-web-service/main/service"
-	"ses.genesis.com/exchange-web-service/main/service/errormapper"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,9 +19,9 @@ func TestServiceError(t *testing.T) {
 	notificationService := &MockNotificationServiceFail{}
 	mapper := errormapper.NewStorageErrorToHTTPMapper()
 
-	rateController := service.NewRateController(externalService)
-	emailController := service.NewEmailController(persistentService, mapper)
-	notificationController := service.NewNotificationController(externalService, notificationService, persistentService)
+	rateController := handler.NewRateHandler(externalService)
+	emailController := handler.NewEmailHandler(persistentService, mapper)
+	notificationController := handler.NewNotificationHandler(externalService, notificationService, persistentService)
 
 	t.Run("shouldNotGetRate", func(t *testing.T) {
 		internalService := service.NewMainService(rateController, emailController, notificationController)
@@ -33,7 +34,7 @@ func TestServiceError(t *testing.T) {
 
 	t.Run("shouldNotPostEmail", func(t *testing.T) {
 		persistentService := &MockPersistentServiceFail{}
-		emailControllerFail := service.NewEmailController(persistentService, mapper)
+		emailControllerFail := handler.NewEmailHandler(persistentService, mapper)
 
 		internalService := service.NewMainService(rateController, emailControllerFail, notificationController)
 		ctx := getTestRequestContext()
@@ -45,7 +46,7 @@ func TestServiceError(t *testing.T) {
 
 	t.Run("shouldNotGetEmails", func(t *testing.T) {
 		persistentService := &MockPersistentServiceFail{}
-		emailControllerFail := service.NewEmailController(persistentService, mapper)
+		emailControllerFail := handler.NewEmailHandler(persistentService, mapper)
 		internalService := service.NewMainService(rateController, emailControllerFail, notificationController)
 		ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
 		internalService.GetEmails(ctx)
@@ -70,9 +71,9 @@ func TestServiceSuccess(t *testing.T) {
 	notificationService := &MockNotificationService{}
 	mapper := errormapper.NewStorageErrorToHTTPMapper()
 
-	rateController := service.NewRateController(externalService)
-	emailController := service.NewEmailController(persistentService, mapper)
-	notificationController := service.NewNotificationController(externalService, notificationService, persistentService)
+	rateController := handler.NewRateHandler(externalService)
+	emailController := handler.NewEmailHandler(persistentService, mapper)
+	notificationController := handler.NewNotificationHandler(externalService, notificationService, persistentService)
 
 	internalService := service.NewMainService(rateController, emailController, notificationController)
 

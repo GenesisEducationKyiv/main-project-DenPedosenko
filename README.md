@@ -4,6 +4,10 @@
 
 The Exchange API provides exchange rate information and allows users to subscribe and send emails related to exchange rates.
 
+## Architecture
+
+![Architecture](docs/architecture.png)
+
 ## Installation
 
 1. Clone the repository:
@@ -28,7 +32,7 @@ docker-compose build
 1. Run the Docker container:
 
 ```bash 
-docker-compose run --rm --service-ports exchangeapi
+docker-compose run --rm --handler-ports exchangeapi
 ```
 
 2. The API will be accessible at `http://localhost:8080`.

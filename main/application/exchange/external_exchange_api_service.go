@@ -1,13 +1,13 @@
-package external
+package exchange
 
 import (
 	"container/list"
 	"errors"
 
-	"github.com/sirupsen/logrus"
-	"ses.genesis.com/exchange-web-service/main/config"
+	"ses.genesis.com/exchange-web-service/main/domain/config"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/sirupsen/logrus"
 )
 
 type RateAPI interface {
@@ -34,8 +34,8 @@ func (s *Service) CurrentRate(from, to string) (float64, error) {
 
 func (s *Service) getRate(val *list.Element, from, to string) (float64, error) {
 	if val == nil {
-		logrus.Error("No external API available")
-		return 0, errors.New("no external API available")
+		logrus.Error("No exchange API available")
+		return 0, errors.New("no exchange API available")
 	}
 
 	api, ok := val.Value.(RateAPI)

@@ -4,8 +4,9 @@ import (
 	"net/smtp"
 	"testing"
 
-	"ses.genesis.com/exchange-web-service/main/config"
-	"ses.genesis.com/exchange-web-service/main/notification"
+	"ses.genesis.com/exchange-web-service/main/application/notification"
+
+	"ses.genesis.com/exchange-web-service/main/domain/config"
 )
 
 type MockSMTPProtocolService struct {

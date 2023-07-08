@@ -1,9 +1,9 @@
-package external
+package provider
 
 import (
 	"github.com/go-resty/resty/v2"
-	"ses.genesis.com/exchange-web-service/main/config"
-	"ses.genesis.com/exchange-web-service/main/logger"
+	"ses.genesis.com/exchange-web-service/main/domain/config"
+	"ses.genesis.com/exchange-web-service/main/domain/logger"
 )
 
 type factory struct {
@@ -18,13 +18,13 @@ func NewAPIFactory(client *resty.Client, clientLoggerDecorator *logger.Decorator
 	}
 }
 
-func (factory *factory) CoinAPIRepository(api config.ConfigAPI) *CoinAPIProvider {
+func (factory *factory) CoinAPIProvider(api config.ConfigAPI) *CoinAPIProvider {
 	return NewCoinAPIProvider(&api, factory.clientLoggerDecorator.NewLogResponseDecorator(factory.client))
 }
 
-func (factory *factory) CoinGeckoAPIRepository(api config.ConfigAPI) *CoinGeckoProvider {
+func (factory *factory) CoinGeckoAPIProvider(api config.ConfigAPI) *CoinGeckoProvider {
 	return NewCoinGeckoProvider(&api, factory.clientLoggerDecorator.NewLogResponseDecorator(factory.client))
 }
-func (factory *factory) KuCoinAPIRepository(api config.ConfigAPI) *KuCoinAPIProvider {
+func (factory *factory) KuCoinAPIProvider(api config.ConfigAPI) *KuCoinAPIProvider {
 	return NewKuCoinProvider(&api, factory.clientLoggerDecorator.NewLogResponseDecorator(factory.client))
 }
