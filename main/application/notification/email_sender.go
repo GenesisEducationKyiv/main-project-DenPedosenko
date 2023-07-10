@@ -5,12 +5,18 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/smtp"
 	"text/template"
 
 	"ses.genesis.com/exchange-web-service/main/domain/config"
 )
 
 const mimeHeaders = "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
+
+type NotifyProtocolService interface {
+	Authenticate(config AuthConfig) smtp.Auth
+	SendMessage(auth smtp.Auth, config AuthConfig, to []string, massage []byte) error
+}
 
 type EmailSender struct {
 	ctx      context.Context

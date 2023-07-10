@@ -8,7 +8,7 @@ import (
 	"ses.genesis.com/exchange-web-service/main/application/exchange"
 	"ses.genesis.com/exchange-web-service/main/application/exchange/provider"
 	"ses.genesis.com/exchange-web-service/main/application/notification"
-	persistent2 "ses.genesis.com/exchange-web-service/main/persistent"
+	"ses.genesis.com/exchange-web-service/main/persistent"
 
 	"github.com/go-resty/resty/v2"
 	"ses.genesis.com/exchange-web-service/main/domain/config"
@@ -32,7 +32,7 @@ func initialize() *service.MainService {
 
 	conf := config.GetConfigFromContext(ctx)
 	notificationService := notification.NewEmailSender(ctx, notification.NewSMTPProtocolService())
-	persistentService := persistent2.NewFileStorage(persistent2.NewFileProcessor(fileStoragePath))
+	persistentService := persistent.NewFileStorage(persistent.NewFileProcessor(fileStoragePath))
 	apisFactory := provider.NewAPIFactory(resty.New(), logger.NewLogger())
 
 	apis := list.New()

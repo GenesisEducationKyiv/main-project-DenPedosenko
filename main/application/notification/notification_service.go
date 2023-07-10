@@ -1,9 +1,5 @@
 package notification
 
-import (
-	"net/smtp"
-)
-
 type AuthConfig struct {
 	from     string
 	password string
@@ -18,9 +14,4 @@ func NewAuthConfig(from, password, smtpHost, smtpPort string) AuthConfig {
 		smtpHost: smtpHost,
 		smtpPort: smtpPort,
 	}
-}
-
-type NotifyProtocolService interface {
-	Authenticate(config AuthConfig) smtp.Auth
-	SendMessage(auth smtp.Auth, config AuthConfig, to []string, massage []byte) error
 }
