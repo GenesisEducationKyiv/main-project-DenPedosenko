@@ -7,8 +7,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
+
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 

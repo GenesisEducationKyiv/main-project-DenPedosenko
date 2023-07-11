@@ -7,7 +7,9 @@ import (
 )
 
 func main() {
-	err := cmd.Router().Run("localhost:8080")
+	app := cmd.NewApplication()
+	err := app.Router.CreateRoutes().Run("localhost:8080")
+
 	if err != nil {
 		log.Fatal(err)
 	}

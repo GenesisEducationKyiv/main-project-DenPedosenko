@@ -22,7 +22,22 @@ const (
 	fileStoragePath = "main/resources/emails.txt"
 )
 
-func initialize() *service.MainService {
+type Router[T any] interface {
+	CreateRoutes() T
+}
+
+type Initializer interface {
+	initialize() *service.MainService
+}
+
+type MainInitializer struct {
+}
+
+func NewInitializer() *MainInitializer {
+	return &MainInitializer{}
+}
+
+func (i MainInitializer) initialize() *service.MainService {
 	configLoader := config.NewConfigLoader(configPath)
 
 	ctx, err := configLoader.GetContext()

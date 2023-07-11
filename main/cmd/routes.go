@@ -1,15 +1,33 @@
 package cmd
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
-func Router() *gin.Engine {
-	var service = initialize()
+type MainService interface {
+	GetRate(c *gin.Context)
+	PostEmail(c *gin.Context)
+	GetEmails(c *gin.Context)
+	SendEmails(c *gin.Context)
+}
 
-	router := gin.Default()
-	router.GET("api/rate", service.GetRate)
-	router.GET("api/subscribe", service.GetEmails)
-	router.POST("api/subscribe", service.PostEmail)
-	router.POST("api/sendEmails", service.SendEmails)
+type GinRouter struct {
+	client  *gin.Engine
+	service MainService
+}
 
-	return router
+func NewGinRouter(service MainService) *GinRouter {
+	return &GinRouter{
+		client:  gin.Default(),
+		service: service,
+	}
+}
+
+func (router GinRouter) CreateRoutes() *gin.Engine {
+	router.client.GET("api/rate", router.service.GetRate)
+	router.client.GET("api/subscribe", router.service.GetEmails)
+	router.client.POST("api/subscribe", router.service.PostEmail)
+	router.client.POST("api/sendEmails", router.service.SendEmails)
+
+	return router.client
 }
