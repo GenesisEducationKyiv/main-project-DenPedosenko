@@ -1,4 +1,4 @@
-package service
+package handler
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type RateController struct {
+type RateHandler struct {
 	externalService RateService
 }
 
@@ -14,14 +14,14 @@ type RateService interface {
 	CurrentRate(from string, to string) (float64, error)
 }
 
-func NewRateController(externalService RateService) *RateController {
-	return &RateController{
+func NewRateHandler(externalService RateService) *RateHandler {
+	return &RateHandler{
 		externalService: externalService,
 	}
 }
 
-func (controller RateController) GetRate(c *gin.Context) {
-	rate, err := controller.externalService.CurrentRate("BTC", "UAH")
+func (handler RateHandler) GetRate(c *gin.Context) {
+	rate, err := handler.externalService.CurrentRate("BTC", "UAH")
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -7,13 +7,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"ses.genesis.com/exchange-web-service/main/logger"
+	"ses.genesis.com/exchange-web-service/main/application/exchange/provider"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/assert"
-
-	"ses.genesis.com/exchange-web-service/main/config"
-	"ses.genesis.com/exchange-web-service/main/service/external"
+	"ses.genesis.com/exchange-web-service/main/domain/config"
+	"ses.genesis.com/exchange-web-service/main/domain/logger"
 )
 
 func TestGetRateFromCoinApi(t *testing.T) {
@@ -28,7 +27,7 @@ func TestGetRateFromCoinApi(t *testing.T) {
 		{
 			name: "success",
 			server: httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				response := external.CoinAPIResponse{Rate: 500000}
+				response := provider.CoinAPIResponse{Rate: 500000}
 				_ = json.NewEncoder(w).Encode(response)
 			})),
 			expected: 500000,
@@ -52,7 +51,7 @@ func TestGetRateFromCoinApi(t *testing.T) {
 				URL: scenario.server.URL,
 				Key: "test-key",
 			}
-			repository := external.NewCoinAPIProvider(conf, client)
+			repository := provider.NewCoinAPIProvider(conf, client)
 
 			rate, err := repository.GetRate("btc", "uah")
 

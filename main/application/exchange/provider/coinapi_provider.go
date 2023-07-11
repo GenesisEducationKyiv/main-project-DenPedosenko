@@ -1,4 +1,4 @@
-package external
+package provider
 
 import (
 	"encoding/json"
@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"strings"
 
+	"ses.genesis.com/exchange-web-service/main/domain/config"
+
 	"github.com/go-resty/resty/v2"
-	"ses.genesis.com/exchange-web-service/main/config"
 )
 
 type CoinAPIProvider struct {

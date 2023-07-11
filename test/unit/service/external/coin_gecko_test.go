@@ -6,10 +6,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"ses.genesis.com/exchange-web-service/main/application/exchange/provider"
+
 	"github.com/go-resty/resty/v2"
-	"ses.genesis.com/exchange-web-service/main/config"
-	"ses.genesis.com/exchange-web-service/main/logger"
-	"ses.genesis.com/exchange-web-service/main/service/external"
+	"ses.genesis.com/exchange-web-service/main/domain/config"
+	"ses.genesis.com/exchange-web-service/main/domain/logger"
 )
 
 func TestGetRateFromGecko(t *testing.T) {
@@ -46,7 +47,7 @@ func TestGetRateFromGecko(t *testing.T) {
 			conf := &config.ConfigAPI{
 				URL: scenario.server.URL,
 			}
-			repository := external.NewCoinGeckoProvider(conf, client)
+			repository := provider.NewCoinGeckoProvider(conf, client)
 			test(t, scenario, repository)
 		})
 	}

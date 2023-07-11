@@ -1,16 +1,20 @@
-package service
+package handler
 
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"ses.genesis.com/exchange-web-service/main/persistent"
-	"ses.genesis.com/exchange-web-service/main/service/errormapper"
+
+	"github.com/gin-gonic/gin"
 )
 
-type EmailController struct {
+type StorageErrorMapper[T any, R any] interface {
+	MapError(code T) R
+}
+
+type EmailHandler struct {
 	storageRepository  StorageRepository
-	storageErrorMapper errormapper.StorageErrorMapper[persistent.StorageError, int]
+	storageErrorMapper StorageErrorMapper[persistent.StorageError, int]
 }
 
 type StorageRepository interface {
@@ -19,15 +23,15 @@ type StorageRepository interface {
 	IsEmailAlreadyExists(newEmail string) bool
 }
 
-func NewEmailController(storageRepository StorageRepository,
-	storageErrorMapper errormapper.StorageErrorMapper[persistent.StorageError, int]) *EmailController {
-	return &EmailController{
+func NewEmailHandler(storageRepository StorageRepository,
+	storageErrorMapper StorageErrorMapper[persistent.StorageError, int]) *EmailHandler {
+	return &EmailHandler{
 		storageRepository:  storageRepository,
 		storageErrorMapper: storageErrorMapper,
 	}
 }
 
-func (controller *EmailController) PostEmail(c *gin.Context) {
+func (h *EmailHandler) PostEmail(c *gin.Context) {
 	request := c.Request
 	writer := c.Writer
 	headerContentType := request.Header.Get("Content-Type")
@@ -45,18 +49,18 @@ func (controller *EmailController) PostEmail(c *gin.Context) {
 	}
 
 	newEmail := request.FormValue("email")
-	errSave := controller.storageRepository.Save(newEmail)
+	errSave := h.storageRepository.Save(newEmail)
 
 	if errSave.Err != nil {
-		writer.WriteHeader(controller.storageErrorMapper.MapError(errSave))
+		writer.WriteHeader(h.storageErrorMapper.MapError(errSave))
 		return
 	}
 
 	writer.WriteHeader(http.StatusOK)
 }
 
-func (controller *EmailController) GetEmails(c *gin.Context) {
-	emails, err := controller.storageRepository.AllEmails()
+func (h *EmailHandler) GetEmails(c *gin.Context) {
+	emails, err := h.storageRepository.AllEmails()
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

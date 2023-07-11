@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/gin-gonic/gin"
+	handler2 "ses.genesis.com/exchange-web-service/main/presentation/handler"
 )
 
 type Rate interface {
@@ -18,9 +19,9 @@ type Notification interface {
 }
 
 type MainService struct {
-	rate         *RateController
-	email        *EmailController
-	notification *NotificationController
+	rate         Rate
+	email        Email
+	notification Notification
 }
 
 func (service *MainService) GetRate(c *gin.Context) {
@@ -39,7 +40,8 @@ func (service *MainService) SendEmails(c *gin.Context) {
 	service.notification.SendEmails(c)
 }
 
-func NewMainService(rate *RateController, email *EmailController, notification *NotificationController) *MainService {
+func NewMainService(rate *handler2.RateHandler, email *handler2.EmailHandler,
+	notification *handler2.NotificationHandler) *MainService {
 	return &MainService{
 		rate:         rate,
 		email:        email,

@@ -1,4 +1,4 @@
-package service
+package handler
 
 import (
 	"net/http"
@@ -10,37 +10,37 @@ type NotificationService interface {
 	Send([]string, float64) error
 }
 
-type NotificationController struct {
+type NotificationHandler struct {
 	externalService     RateService
 	notificationService NotificationService
 	storage             StorageRepository
 }
 
-func NewNotificationController(externalService RateService, notificationService NotificationService,
-	storage StorageRepository) *NotificationController {
-	return &NotificationController{
+func NewNotificationHandler(externalService RateService, notificationService NotificationService,
+	storage StorageRepository) *NotificationHandler {
+	return &NotificationHandler{
 		externalService:     externalService,
 		notificationService: notificationService,
 		storage:             storage,
 	}
 }
 
-func (us *NotificationController) SendEmails(c *gin.Context) {
-	emails, err := us.storage.AllEmails()
+func (handler *NotificationHandler) SendEmails(c *gin.Context) {
+	emails, err := handler.storage.AllEmails()
 
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	rate, err := us.externalService.CurrentRate("BTC", "UAH")
+	rate, err := handler.externalService.CurrentRate("BTC", "UAH")
 
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = us.notificationService.Send(emails, rate)
+	err = handler.notificationService.Send(emails, rate)
 
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
