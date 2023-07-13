@@ -31,7 +31,7 @@ jobs:
           go-version: '1.20'
           cache: false
       - name: Run unit & integration tests
-        run: go test ./test/unit/...
+        run: go test ./exchange_service/test/unit/...
   e2e-test:
     name: E2E Test
     runs-on: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
           go-version: '1.20'
           cache: false
       - name: Run e2e tests
-        run: go test ./test/e2e
+        run: go test ./exchange_service/test/e2e
   architecture-test:
     name: Architecture Test
     runs-on: ubuntu-latest
@@ -55,4 +55,4 @@ jobs:
           go-version: '1.20'
           cache: false
       - name: Run architecture tests
-        run: go test ./test/architecture
+        run: go test ./exchange_service/test/architecture

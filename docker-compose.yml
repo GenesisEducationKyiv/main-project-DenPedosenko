@@ -5,7 +5,17 @@ services:
     image: exchangeapi
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: main/Dockerfile
     hostname: localhost
     ports:
       - "8080:8080"
+  rabbitmq:
+    image: rabbitmq:3.8.0-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=password
