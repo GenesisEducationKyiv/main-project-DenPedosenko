@@ -10,6 +10,7 @@ RUN go build -o /go/bin/src/ -v ./...
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 COPY --from=builder /go/bin/src/. /exchangeapi
-ENTRYPOINT ["/exchangeapi/main"]
+COPY --from=builder /go/src/app/resources/application.yaml /resources/application.yaml
+ENTRYPOINT ["/exchangeapi/exchange-web-service"]
 LABEL Name=exchangeapi Version=0.0.1
 EXPOSE 8080
