@@ -7,31 +7,56 @@ services:
       context: ./exchange_service
       dockerfile: Dockerfile
     hostname: localhost
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - exchange_service_network
     ports:
       - "8080:8080"
+
   rabbitmq:
     image: rabbitmq:3.8.0-management
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 3s
+      timeout: 3s
+      retries: 5
+      start_period: 2s
     ports:
       - "15672:15672"
       - "5672:5672"
+    networks:
+      - exchange_service_network
     volumes:
       - ./rabbitmq:/var/lib/rabbitmq
     environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=password
-  log-consumer:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  logconsumer:
     image: log-consumer
     build:
       context: ./log_consumer
       dockerfile: Dockerfile
-    hostname: localhost
+    restart: on-failure
+    networks:
+      - exchange_service_network
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     ports:
       - "8081:8081"
     environment:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
-      - RABBITMQ_USERNAME=admin
-      - RABBITMQ_PASSWORD=password
-      - RABBITMQ_QUEUE=logs
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_LOG_LEVEL=Error
+      - RABBITMQ_QUEUE=logger
+      - RABBITMQ_EXCHANGE=logs
+
+networks:
+  exchange_service_network:
+    driver: bridge
+    external: false

@@ -3,6 +3,7 @@ package notification_test
 import (
 	"exchange-web-service/application/notification"
 	"exchange-web-service/domain/config"
+	testservice "exchange-web-service/test/unit/service"
 	"net/smtp"
 	"testing"
 )
@@ -26,7 +27,7 @@ func TestSend(t *testing.T) {
 
 	t.Run("shouldSendEmail", func(t *testing.T) {
 		protocol := &MockSMTPProtocolService{}
-		sender := notification.NewEmailSender(ctx, protocol)
+		sender := notification.NewEmailSender(ctx, protocol, testservice.TestLogger{})
 		err := sender.Send([]string{"test@gmail.com"}, 1.0)
 		if err != nil {
 			t.Errorf("Err: %s", err)

@@ -5,7 +5,6 @@ import (
 	"context"
 	"exchange-web-service/domain/config"
 	"fmt"
-	"log"
 	"net/smtp"
 	"text/template"
 )
@@ -17,22 +16,31 @@ type NotifyProtocolService interface {
 	SendMessage(auth smtp.Auth, config AuthConfig, to []string, massage []byte) error
 }
 
+type logger interface {
+	Info(string string)
+	Error(string string)
+	Debug(string string)
+	Close()
+}
+
 type EmailSender struct {
 	ctx      context.Context
 	protocol NotifyProtocolService
 	template *template.Template
+	logger   logger
 }
 
-func NewEmailSender(ctx context.Context, protocol NotifyProtocolService) *EmailSender {
-	t, errTemplate := template.New("message").Parse(getMessageTemplate())
-	if errTemplate != nil {
-		log.Fatal(errTemplate)
+func NewEmailSender(ctx context.Context, protocol NotifyProtocolService, logger logger) *EmailSender {
+	t, err := template.New("message").Parse(getMessageTemplate())
+	if err != nil {
+		logger.Error(err.Error())
 	}
 
 	return &EmailSender{
 		ctx:      ctx,
 		template: t,
 		protocol: protocol,
+		logger:   logger,
 	}
 }
 
@@ -43,15 +51,16 @@ func (sender *EmailSender) Send(to []string, rate float64) error {
 
 	auth := sender.protocol.Authenticate(authConfig)
 
-	body, errBody := sender.getMessageBody(rate)
-	if errBody != nil {
-		log.Fatal(errBody)
-		return errBody
+	body, err := sender.getMessageBody(rate)
+	if err != nil {
+		sender.logger.Error(err.Error())
+		return err
 	}
 
-	errSendMail := sender.protocol.SendMessage(auth, authConfig, to, body.Bytes())
-	if errSendMail != nil {
-		return errSendMail
+	err = sender.protocol.SendMessage(auth, authConfig, to, body.Bytes())
+	if err != nil {
+		sender.logger.Error(err.Error())
+		return err
 	}
 
 	return nil
@@ -69,7 +78,7 @@ func (sender *EmailSender) getMessageBody(rate float64) (*bytes.Buffer, error) {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		sender.logger.Error(err.Error())
 		return nil, err
 	}
 

@@ -1,7 +1,20 @@
 package main
 
-import "fmt"
+import (
+	"log"
+	"log_consumer/consumer"
+)
 
 func main() {
-	fmt.Print("Hello world!")
+	logConsumer, err := consumer.NewLoggerConsumer()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("Logger Consumer started. Waiting for logs...")
+
+	err = logConsumer.ConsumeLogs()
+	if err != nil {
+		log.Fatal(err)
+	}
 }

@@ -13,3 +13,4 @@ FROM golang:latest
 WORKDIR /logs-consumer
 COPY --from=builder /logs-consumer/main .
 CMD ["./main"]
+EXPOSE 8081

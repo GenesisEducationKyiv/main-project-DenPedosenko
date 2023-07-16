@@ -18,9 +18,11 @@ func TestServiceError(t *testing.T) {
 	notificationService := &MockNotificationServiceFail{}
 	mapper := errormapper.NewStorageErrorToHTTPMapper()
 
-	rateController := handler.NewRateHandler(externalService)
-	emailController := handler.NewEmailHandler(persistentService, mapper)
-	notificationController := handler.NewNotificationHandler(externalService, notificationService, persistentService)
+	testLogger := TestLogger{}
+
+	rateController := handler.NewRateHandler(externalService, testLogger)
+	emailController := handler.NewEmailHandler(persistentService, mapper, testLogger)
+	notificationController := handler.NewNotificationHandler(externalService, notificationService, persistentService, testLogger)
 
 	t.Run("shouldNotGetRate", func(t *testing.T) {
 		internalService := service.NewMainService(rateController, emailController, notificationController)
@@ -33,7 +35,7 @@ func TestServiceError(t *testing.T) {
 
 	t.Run("shouldNotPostEmail", func(t *testing.T) {
 		persistentService := &MockPersistentServiceFail{}
-		emailControllerFail := handler.NewEmailHandler(persistentService, mapper)
+		emailControllerFail := handler.NewEmailHandler(persistentService, mapper, testLogger)
 
 		internalService := service.NewMainService(rateController, emailControllerFail, notificationController)
 		ctx := getTestRequestContext()
@@ -45,7 +47,7 @@ func TestServiceError(t *testing.T) {
 
 	t.Run("shouldNotGetEmails", func(t *testing.T) {
 		persistentService := &MockPersistentServiceFail{}
-		emailControllerFail := handler.NewEmailHandler(persistentService, mapper)
+		emailControllerFail := handler.NewEmailHandler(persistentService, mapper, testLogger)
 		internalService := service.NewMainService(rateController, emailControllerFail, notificationController)
 		ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
 		internalService.GetEmails(ctx)
@@ -69,10 +71,10 @@ func TestServiceSuccess(t *testing.T) {
 	persistentService := &MockPersistentRepository{}
 	notificationService := &MockNotificationService{}
 	mapper := errormapper.NewStorageErrorToHTTPMapper()
-
-	rateController := handler.NewRateHandler(externalService)
-	emailController := handler.NewEmailHandler(persistentService, mapper)
-	notificationController := handler.NewNotificationHandler(externalService, notificationService, persistentService)
+	testLogger := TestLogger{}
+	rateController := handler.NewRateHandler(externalService, testLogger)
+	emailController := handler.NewEmailHandler(persistentService, mapper, testLogger)
+	notificationController := handler.NewNotificationHandler(externalService, notificationService, persistentService, testLogger)
 
 	internalService := service.NewMainService(rateController, emailController, notificationController)
 

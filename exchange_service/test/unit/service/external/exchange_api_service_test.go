@@ -6,6 +6,7 @@ import (
 	"exchange-web-service/application/exchange"
 	"exchange-web-service/domain/config"
 	"exchange-web-service/domain/logger"
+	testservice "exchange-web-service/test/unit/service"
 	"testing"
 
 	"github.com/go-resty/resty/v2"
@@ -99,7 +100,7 @@ func TestService_CurrentRate(t *testing.T) {
 		t.Run(scenario.name, func(t *testing.T) {
 			client := logger.NewLogger().NewLogResponseDecorator(resty.New())
 
-			service := exchange.NewExternalExchangeAPIService(&config.AppConfig{}, client, scenario.apis)
+			service := exchange.NewExternalExchangeAPIService(&config.AppConfig{}, client, scenario.apis, testservice.TestLogger{})
 			rate, err := service.CurrentRate("USD", "EUR")
 			assert.Equal(t, scenario.err, err)
 			assert.Equal(t, scenario.rate, rate)

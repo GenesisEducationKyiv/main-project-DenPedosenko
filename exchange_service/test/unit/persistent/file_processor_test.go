@@ -2,13 +2,14 @@ package persistent_test
 
 import (
 	"exchange-web-service/persistent"
+	testservice "exchange-web-service/test/unit/service"
 	"os"
 	"testing"
 )
 
 const TestFilePath = "test_file_storage.txt"
 
-var testFileProcessor = persistent.NewFileProcessor(TestFilePath)
+var testFileProcessor = persistent.NewFileProcessor(TestFilePath, testservice.TestLogger{})
 
 func TestOpenFile(t *testing.T) {
 	t.Run("should openFileIfExist", func(t *testing.T) {
@@ -42,7 +43,7 @@ func TestOpenFile(t *testing.T) {
 	})
 
 	t.Run("shouldThrowErrorIfCanCreateFile", func(t *testing.T) {
-		testFileProcessor = persistent.NewFileProcessor("")
+		testFileProcessor = persistent.NewFileProcessor("", testservice.TestLogger{})
 		file, err := testFileProcessor.OpenFile(os.O_RDWR)
 		if err == nil {
 			t.Error("Expected error to be not nil")

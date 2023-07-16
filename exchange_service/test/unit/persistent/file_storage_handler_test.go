@@ -3,6 +3,7 @@ package persistent_test
 import (
 	"errors"
 	"exchange-web-service/persistent"
+	testservice "exchange-web-service/test/unit/service"
 	"os"
 	"testing"
 )
@@ -25,7 +26,7 @@ func (tfp *TestFileProcessor) OpenFile(_ int) (*os.File, error) {
 func TestFileStorage_AllEmails(t *testing.T) {
 	cleanUpTestData()
 	t.Run("should return email from file", func(t *testing.T) {
-		var fs = persistent.NewFileStorage(&TestFileProcessor{})
+		var fs = persistent.NewFileStorage(&TestFileProcessor{}, testservice.TestLogger{})
 		emails, err := fs.AllEmails()
 
 		if err != nil {
@@ -38,7 +39,7 @@ func TestFileStorage_AllEmails(t *testing.T) {
 	})
 
 	t.Run("should return nil if something goes wrong", func(t *testing.T) {
-		var fs = persistent.NewFileStorage(&FailTestFileProcessor{})
+		var fs = persistent.NewFileStorage(&FailTestFileProcessor{}, testservice.TestLogger{})
 		_, err := fs.AllEmails()
 
 		if err == nil {
@@ -52,7 +53,7 @@ func TestFileStorage_AllEmails(t *testing.T) {
 func TestFileStorage_SaveEmailToStorage(t *testing.T) {
 	cleanUpTestData()
 	t.Run("should return OK if email is saved", func(t *testing.T) {
-		var fs = persistent.NewFileStorage(&TestFileProcessor{})
+		var fs = persistent.NewFileStorage(&TestFileProcessor{}, testservice.TestLogger{})
 		err := fs.Save("new_test_email")
 		if err.Err != nil {
 			t.Error("Expected error to be nil")
@@ -60,7 +61,7 @@ func TestFileStorage_SaveEmailToStorage(t *testing.T) {
 	})
 
 	t.Run("should return error with code 0 if email already exists", func(t *testing.T) {
-		var fs = persistent.NewFileStorage(&TestFileProcessor{})
+		var fs = persistent.NewFileStorage(&TestFileProcessor{}, testservice.TestLogger{})
 		err := fs.Save("test@gmail.com")
 		if err.Err == nil {
 			t.Error("Expected error to be not nil")
@@ -72,7 +73,7 @@ func TestFileStorage_SaveEmailToStorage(t *testing.T) {
 	})
 
 	t.Run("should return error with code 1 if something goes wrong", func(t *testing.T) {
-		var fs = persistent.NewFileStorage(&FailTestFileProcessor{})
+		var fs = persistent.NewFileStorage(&FailTestFileProcessor{}, testservice.TestLogger{})
 		err := fs.Save("test@gmail.com")
 
 		if err.Err == nil {

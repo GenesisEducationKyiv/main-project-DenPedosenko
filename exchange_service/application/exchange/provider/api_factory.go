@@ -3,6 +3,7 @@ package provider
 import (
 	"exchange-web-service/domain/config"
 	"exchange-web-service/domain/logger"
+
 	"github.com/go-resty/resty/v2"
 )
 

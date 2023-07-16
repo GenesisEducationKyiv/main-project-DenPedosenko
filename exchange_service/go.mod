@@ -6,7 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/matthewmcnew/archtest v0.0.0-20191104172020-f1b53a45c22d
-	github.com/sirupsen/logrus v1.9.3
+	github.com/streadway/amqp v1.1.0
 	github.com/stretchr/testify v1.8.3
 	gopkg.in/yaml.v3 v3.0.1
 )
