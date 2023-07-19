@@ -93,6 +93,7 @@ func NewLoggerConsumer() (*LoggerConsumer, error) {
 	)
 
 	if err != nil {
+		conn.Close()
 		return nil, err
 	}
 
@@ -137,12 +138,16 @@ func (c *LoggerConsumer) ConsumeLogs() error {
 
 	<-interrupt
 
-	if err := c.channel.Close(); err != nil {
-		return err
+	if c.channel != nil {
+		if err := c.channel.Close(); err != nil {
+			return err
+		}
 	}
 
-	if err := c.conn.Close(); err != nil {
-		return err
+	if c.conn != nil {
+		if err := c.conn.Close(); err != nil {
+			return err
+		}
 	}
 
 	return nil

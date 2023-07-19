@@ -26,7 +26,7 @@ func NewLogger(amqpURL string) (*Logger, error) {
 	}
 
 	err = channel.ExchangeDeclare(
-		"logs",
+		EXCHANGE,
 		amqp.ExchangeDirect,
 		true,
 		false,
@@ -42,7 +42,7 @@ func NewLogger(amqpURL string) (*Logger, error) {
 	return &Logger{
 		conn:     conn,
 		channel:  channel,
-		exchange: "logs",
+		exchange: EXCHANGE,
 	}, nil
 }
 
@@ -66,15 +66,15 @@ func (l *Logger) log(level, message string) {
 }
 
 func (l *Logger) Error(message string) {
-	l.log("Error", message)
+	l.log(ERROR, message)
 }
 
 func (l *Logger) Info(message string) {
-	l.log("Info", message)
+	l.log(INFO, message)
 }
 
 func (l *Logger) Debug(message string) {
-	l.log("Debug", message)
+	l.log(DEBUG, message)
 }
 
 func (l *Logger) Close() {
