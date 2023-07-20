@@ -40,6 +40,13 @@ func (s *MockPersistentRepository) IsEmailAlreadyExists(email string) bool {
 	return false
 }
 
+func (s *MockPersistentRepository) Remove(_ string) persistent.StorageError {
+	return persistent.StorageError{
+		Code: -1,
+		Err:  nil,
+	}
+}
+
 type MockPersistentServiceFail struct {
 }
 
@@ -53,4 +60,11 @@ func (s *MockPersistentServiceFail) Save(_ string) persistent.StorageError {
 
 func (s *MockPersistentServiceFail) IsEmailAlreadyExists(_ string) bool {
 	return false
+}
+
+func (s *MockPersistentServiceFail) Remove(_ string) persistent.StorageError {
+	return persistent.StorageError{
+		Code: -1,
+		Err:  nil,
+	}
 }

@@ -1,25 +1,28 @@
-version: '3.4'
+version: '3.8'
 
 services:
-  exchange_service:
+  exchange:
     image: exchange_service
     build:
-      context: ./exchange_service
+      context: exchange_service
       dockerfile: Dockerfile
-    hostname: localhost
     depends_on:
       rabbitmq:
         condition: service_healthy
-    networks:
-      - exchange_service_network
+    environment:
+      - DTM_COORDINATOR=http://dtm:36789/api/dtmsvr
+      - EXCHANGE_SERVICE_URL=http://exchange:8080
+      - CUSTOMERS_SERVICE_URL=http://customers:8080
     ports:
-      - "8080:8080"
+      - "8090:8080"
+    networks:
+      - custom
 
   rabbitmq:
     image: rabbitmq:3.8.0-management
     healthcheck:
       test: rabbitmq-diagnostics -q ping
-      interval: 3s
+      interval: 10s
       timeout: 3s
       retries: 5
       start_period: 2s
@@ -27,7 +30,7 @@ services:
       - "15672:15672"
       - "5672:5672"
     networks:
-      - exchange_service_network
+      - custom
     volumes:
       - ./rabbitmq:/var/lib/rabbitmq
     environment:
@@ -35,18 +38,13 @@ services:
       - RABBITMQ_DEFAULT_PASS=guest
 
   logconsumer:
-    image: log-consumer
     build:
-      context: ./log_consumer
+      context: log_consumer
       dockerfile: Dockerfile
     restart: on-failure
-    networks:
-      - exchange_service_network
     depends_on:
       rabbitmq:
         condition: service_healthy
-    ports:
-      - "8081:8081"
     environment:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
@@ -55,8 +53,48 @@ services:
       - RABBITMQ_LOG_LEVEL=Error
       - RABBITMQ_QUEUE=logger
       - RABBITMQ_EXCHANGE=logs
+    networks:
+      - custom
+
+  customers:
+    build:
+      context: https://github.com/Bogdaan/saga-example.git#master:services/customers
+      dockerfile: Dockerfile
+    environment:
+      - DTM_COORDINATOR=http://dtm:36789/api/dtmsvr
+      - ORDERS_SERVICE_URL=http://orders:8080
+      - CUSTOMERS_SERVICE_URL=http://customers:8080
+      - MYSQL_DSN=saga:saga@tcp(mysql:3306)/saga?charset=utf8mb4&parseTime=True&loc=Local
+    depends_on:
+      - dtm
+      - mysql
+    ports:
+      - "8091:8080"
+    networks:
+      - custom
+
+  dtm:
+    image: yedf/dtm
+    restart: always
+    ports:
+      - "36790:36790" # grpc
+      - "36789:36789" # ui
+    networks:
+      - custom
+
+  mysql:
+    image: mysql:8
+    restart: always
+    ports:
+      - "8092:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=saga
+      - MYSQL_USER=saga
+      - MYSQL_PASSWORD=saga
+    networks:
+      - custom
 
 networks:
-  exchange_service_network:
+  custom:
     driver: bridge
-    external: false

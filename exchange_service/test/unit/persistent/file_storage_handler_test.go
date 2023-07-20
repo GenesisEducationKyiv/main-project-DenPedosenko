@@ -23,6 +23,14 @@ func (tfp *TestFileProcessor) OpenFile(_ int) (*os.File, error) {
 	return file, nil
 }
 
+func (tfp *TestFileProcessor) RewriteFile(_ []byte) error {
+	return nil
+}
+
+func (tfp *FailTestFileProcessor) RewriteFile(_ []byte) error {
+	return nil
+}
+
 func TestFileStorage_AllEmails(t *testing.T) {
 	cleanUpTestData()
 	t.Run("should return email from file", func(t *testing.T) {
