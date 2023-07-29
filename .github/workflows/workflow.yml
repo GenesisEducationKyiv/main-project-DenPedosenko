@@ -21,6 +21,7 @@ jobs:
         with:
           version: v1.53
           only-new-issues: true
+          working-directory: exchange_service
   unit-test:
     name: Run tests
     runs-on: ubuntu-latest
@@ -31,11 +32,12 @@ jobs:
           go-version: '1.20'
           cache: false
       - name: Run unit & integration tests
-        run: go test ./test/unit/...
+        run: cd exchange_service &&
+          go test ./test/unit/...
   e2e-test:
     name: E2E Test
     runs-on: ubuntu-latest
-    needs: [unit-test]
+    needs: [ unit-test ]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
@@ -43,11 +45,12 @@ jobs:
           go-version: '1.20'
           cache: false
       - name: Run e2e tests
-        run: go test ./test/e2e
+        run: cd exchange_service &&
+          go test ./test/e2e
   architecture-test:
     name: Architecture Test
     runs-on: ubuntu-latest
-    needs: [e2e-test]
+    needs: [ e2e-test ]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
@@ -55,4 +58,5 @@ jobs:
           go-version: '1.20'
           cache: false
       - name: Run architecture tests
-        run: go test ./test/architecture
+        run: cd exchange_service &&
+          go test ./test/architecture

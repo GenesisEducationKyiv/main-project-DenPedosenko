@@ -1,0 +1,1 @@
+username: test.sender.genesis.ses@gmail.compassword: uotikrysrztcgdiqhost: smtp.gmail.comport: 587logger:  url: amqp://guest:guest@rabbitmq:5672/coin_api:  key: 1840BB94-23AA-4434-B89F-BD0D7EFB32  url: https://rest.coinapi.io/v1/exchangeratecoin_gecko:  url: https://api.coingecko.com/api/v3/simple/priceku_coin:  url: https://api.kucoin.com/api/v1/prices

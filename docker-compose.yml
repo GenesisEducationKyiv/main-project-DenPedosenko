@@ -1,11 +1,100 @@
-version: '3.4'
+version: '3.8'
 
 services:
-  exchangeapi:
-    image: exchangeapi
+  exchange:
+    image: exchange_service
     build:
-      context: .
-      dockerfile: ./Dockerfile
-    hostname: localhost
+      context: exchange_service
+      dockerfile: Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - DTM_COORDINATOR=http://dtm:36789/api/dtmsvr
+      - EXCHANGE_SERVICE_URL=http://exchange:8080
+      - CUSTOMERS_SERVICE_URL=http://customers:8080
     ports:
-      - "8080:8080"
+      - "8090:8080"
+    networks:
+      - custom
+
+  rabbitmq:
+    image: rabbitmq:3.8.0-management
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 2s
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    networks:
+      - custom
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  logconsumer:
+    build:
+      context: log_consumer
+      dockerfile: Dockerfile
+    restart: on-failure
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_LOG_LEVEL=Error
+      - RABBITMQ_QUEUE=logger
+      - RABBITMQ_EXCHANGE=logs
+    networks:
+      - custom
+
+  customers:
+    build:
+      context: https://github.com/Bogdaan/saga-example.git#master:services/customers
+      dockerfile: Dockerfile
+    environment:
+      - DTM_COORDINATOR=http://dtm:36789/api/dtmsvr
+      - ORDERS_SERVICE_URL=http://orders:8080
+      - CUSTOMERS_SERVICE_URL=http://customers:8080
+      - MYSQL_DSN=saga:saga@tcp(mysql:3306)/saga?charset=utf8mb4&parseTime=True&loc=Local
+    depends_on:
+      - dtm
+      - mysql
+    ports:
+      - "8091:8080"
+    networks:
+      - custom
+
+  dtm:
+    image: yedf/dtm
+    restart: always
+    ports:
+      - "36790:36790" # grpc
+      - "36789:36789" # ui
+    networks:
+      - custom
+
+  mysql:
+    image: mysql:8
+    restart: always
+    ports:
+      - "8092:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=saga
+      - MYSQL_USER=saga
+      - MYSQL_PASSWORD=saga
+    networks:
+      - custom
+
+networks:
+  custom:
+    driver: bridge
