@@ -9,6 +9,7 @@ const defaultFilePermission = 0o644
 
 type FileProcessor interface {
 	OpenFile(ac int) (*os.File, error)
+	RewriteFile(data []byte) error
 }
 
 type logger interface {
@@ -41,4 +42,8 @@ func (fp *FileProcessorImpl) OpenFile(ac int) (*os.File, error) {
 	fp.logger.Debug(fmt.Sprintf("File opened from path: %s", fp.defaultFilePath))
 
 	return file, nil
+}
+
+func (fp *FileProcessorImpl) RewriteFile(data []byte) error {
+	return os.WriteFile(fp.defaultFilePath, data, defaultFilePermission)
 }

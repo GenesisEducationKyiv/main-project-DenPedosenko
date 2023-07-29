@@ -2,6 +2,7 @@ package persistent
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -109,4 +110,56 @@ func (storage *FileStorage) AllEmails() ([]string, error) {
 	}
 
 	return emails, nil
+}
+
+func (storage *FileStorage) Remove(email string) StorageError {
+	file, err := storage.fileProcessor.OpenFile(os.O_RDWR)
+
+	if err != nil {
+		storage.logger.Error(fmt.Sprintf("File storage handler error: %s", err.Error()))
+
+		return StorageError{
+			Err:  errors.New("can't open file"),
+			Code: UnknownError,
+		}
+	}
+
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	buffer := bytes.NewBufferString("")
+
+	for scanner.Scan() {
+		if scanner.Text() == email {
+			continue
+		}
+
+		if _, err = buffer.WriteString(scanner.Text() + "\n"); err != nil {
+			return StorageError{
+				Err:  errors.New("can't write to file"),
+				Code: UnknownError,
+			}
+		}
+	}
+
+	if err = scanner.Err(); err != nil {
+		return StorageError{
+			Err:  errors.New("can't open file"),
+			Code: UnknownError,
+		}
+	}
+
+	err = storage.fileProcessor.RewriteFile(buffer.Bytes())
+
+	if err != nil {
+		return StorageError{
+			Err:  errors.New("can't write to file"),
+			Code: UnknownError,
+		}
+	}
+
+	return StorageError{
+		Err:  nil,
+		Code: -1,
+	}
 }

@@ -28,6 +28,7 @@ type EmailHandler struct {
 type StorageRepository interface {
 	AllEmails() ([]string, error)
 	Save(email string) persistent.StorageError
+	Remove(email string) persistent.StorageError
 	IsEmailAlreadyExists(newEmail string) bool
 }
 

@@ -27,8 +27,10 @@ func NewApplication() *Application {
 		panic(err)
 	}
 
+	initializer := NewInitializer()
+
 	return &Application{
-		Router: NewGinRouter(NewInitializer().initialize(ctx, logger)),
+		Router: NewGinRouter(initializer.initialize(ctx, logger)),
 		Logger: logger,
 	}
 }
